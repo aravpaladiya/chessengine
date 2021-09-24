@@ -1,10 +1,14 @@
 package com.example.Engine;
 import com.example.Game;
 
+import java.util.Arrays;
+
 import static com.example.Engine.Constants.*;
 
 import static com.example.Engine.Evaluate.evaluate;
+import static com.example.Engine.Evaluate.scoreMove;
 import static com.example.Engine.GameBoard.*;
+import com.example.Engine.MoveList;
 import static com.example.Engine.MoveGen.*;
 import static com.example.Game.gui;
 import static com.example.Game.searchDepth;
@@ -13,16 +17,66 @@ import static com.example.Game.searchDepth;
 public class Search {
     public static int searchNodes  = 0;
 
-    private static int ply = 0;
-    public static int bestMove;
+    public static int ply = 0;
+    public static boolean scoringPV = false;
+    public static boolean followingPVLine = false;
+
+    public static int[][] killerMoves = new int[2][maxPly];
+    public static int[][] principalVariation = new int[maxPly][maxPly];
+    public static int[] PVLength = new int[maxPly];
+    public static int[][] historyMoves = new int[12][64];
+
 
     public static int searchPosition(int depth) {
-        return negamax(depth, -infinity, infinity);
+        int score = 0;
+            killerMoves = new int[2][maxPly];
+        principalVariation = new int[64][64];
+        PVLength = new int[maxPly];
+        historyMoves = new int[12][64];
+        long s = System.nanoTime();
+        for(int i = 1; i <=depth; i++) {
+            followingPVLine = true;
+            searchNodes = 0;
+            long start = System.nanoTime();
+            score = negamax(i, -infinity, infinity);
+            long finish = System.nanoTime();
+            System.out.println("\ntime: " + (float)(finish-start)/1000000000 + " depth: " + i + " score: " + (float)(score)/100 + " move: " + getShortMove(principalVariation[0][0]) + " nodes: " + searchNodes);
+            System.out.print("principal variation: ");
+            for(int j = 0; j < i; j++) {
+                System.out.print(getShortMove(principalVariation[0][j]) + " ");
+            }
+            System.out.println();
+        }
+        System.out.println("total time: " + (float)(System.nanoTime()-s)/1000000000);
 
+
+        return score;
 
     }
 
+    public static int testSearch() {
+        searchNodes = 0;
+        long start = System.nanoTime();
+        int score = negamax(6, -infinity, infinity);
+        long finish = System.nanoTime();
+        System.out.println("\ntime: " + (float)(finish-start)/1000000000 + " depth: " + 6 + " score: " + (float)(score)/100 + " move: " + getShortMove(principalVariation[0][0]) + " nodes: " + searchNodes);
+        System.out.print("principal variation: ");
+        for(int j = 0; j < 6; j++) {
+            System.out.print(getShortMove(principalVariation[0][j]) + " ");
+        }
+        System.out.println();
+        return score;
+    }
+
+    public static void sortMoves(MoveList list) {
+        MoveSort.sortList(list);
+    }
+
+
+
+
     public static int quiescence(int alpha, int beta) {
+        searchNodes++;
         int evaluate = evaluate();
         if(evaluate >= beta) {
             return beta;
@@ -30,15 +84,18 @@ public class Search {
         if(evaluate > alpha) {
             alpha = evaluate;
         }
+
+
         MoveList searchList = new MoveList();
         generateMoves(searchList);
         for(int i = 0; i < searchList.count; i++) {
 
-            if(makeMove(searchList.moves[i], capMoves)) {
+            if(makeMove(searchList.getNextMove(i).move, capMoves)) {
                 ply++;
                 int score = -quiescence(-beta, -alpha);
                 ply--;
-                unmakeMove(searchList.moves[i], allMoves);
+                unmakeMove(searchList.moves[i].move, allMoves);
+
                 if(score >= beta) {
                     return beta;
                 }
@@ -52,44 +109,69 @@ public class Search {
 
     public static int negamax(int depth, int alpha, int beta) {
         int score;
+        boolean foundPV = false;
+        PVLength[ply] = ply;
         if(depth == 0) {
-            searchNodes++;
             return quiescence(alpha, beta);
         }
+
+        if(ply > maxPly-1) {
+            //too deep
+            return evaluate();
+        }
+        searchNodes++;
+        boolean inCheck = isSquareAttacked(BitBoard.getLs1bIndex(bitboards[side==WHITE?K:k]), side^1);
         int legalMoveCount = 0;
 
+        if (inCheck) {
+            depth++;
+        }
+
+
+
         MoveList searchList = new MoveList();
+        scoringPV = false;
         generateMoves(searchList);
         for(int i = 0; i < searchList.count; i++) {
 
-            if(makeMove(searchList.moves[i], allMoves)) {
+            if(makeMove(searchList.getNextMove(i).move, allMoves)) {
 
                 ply++;
                 legalMoveCount++;
-                score = -negamax(depth-1, -beta, -alpha);
+                if(foundPV) {
+                    score = -negamax(depth-1, -alpha-1, -alpha);
+                    if(score > alpha && score < beta) {
+                        score = -negamax(depth-1, -beta, -alpha);
+                    }
+                } else {
+                    score = -negamax(depth - 1, -beta, -alpha);
+                }
 
                 ply--;
 
-                unmakeMove(searchList.moves[i], allMoves);
+                unmakeMove(searchList.moves[i].move, allMoves);
                 if(score >= beta) {
+                    //killer
+                    if(decodeCap(searchList.moves[i].move)==0) {
+                        killerMoves[1][ply] = killerMoves[0][ply];
+                        killerMoves[0][ply] = searchList.moves[i].move;
+                    }
+
                     return beta;
                 }
-                if(ply==0) {
-                    if(searchDepth != depth) {
-                        return 51000;
-                    }                }
+
                 if(score > alpha) {
                     alpha = score;
-                    if(ply==0) {
-
-//                        System.out.println(searchList.count);
-//                        printMoveList(searchList);
-                        System.out.println();
-                        System.out.println(squareToCoords[decodeFrom(searchList.moves[i])] + squareToCoords[decodeTo(searchList.moves[i])]);
-                        bestMove = searchList.moves[i];
-                        gui.updateScore((float)(score)/100*((Game.computerColor ==WHITE)?1:-1));
-//                        printMove(bestMove);
+                    foundPV = true;
+                    if(decodeCap(searchList.moves[i].move)==0) {
+                        historyMoves[decodePiece(searchList.moves[i].move)][decodeTo(searchList.moves[i].move)] = 1 << depth;
                     }
+                    principalVariation[ply][ply] = searchList.moves[i].move;
+                    for(int nextPly = ply+1; nextPly < PVLength[ply+1]; nextPly++) {
+                        //pv
+                        principalVariation[ply][nextPly] = principalVariation[ply+1][nextPly];
+                    }
+                    PVLength[ply] = PVLength[ply+1];
                 }
 
 

@@ -1,9 +1,12 @@
 package com.example.Engine;
 
+import static com.example.Engine.Evaluate.*;
 import static com.example.Game.*;
 import static com.example.Engine.BitBoard.*;
 import static com.example.Engine.GameBoard.*;
 import static com.example.Engine.Constants.*;
+import static com.example.Engine.Search.*;
+
 public abstract class MoveGen {
     //bitboard functions
 
@@ -573,12 +576,16 @@ public abstract class MoveGen {
     //move list
 
     public static void addMove(int move, MoveList list) {
-        list.moves[list.count] = move;
-        list.count ++;
+        list.moves[list.count] = new Move(move, scoreMove(move));
+        list.count++;
 
     }
     public static void printShortMove(int move) {
-        System.out.println(squareToCoords[decodeFrom(move)] + " " +  squareToCoords[decodeTo(move)]);
+        System.out.println(squareToCoords[decodeFrom(move)] + squareToCoords[decodeTo(move)] + ((decodePromPiece(move)!=noPc)?intToPiece[decodePromPiece(move)]:""));
+    }
+
+    public static String getShortMove(int move) {
+        return squareToCoords[decodeFrom(move)] + squareToCoords[decodeTo(move)] + ((decodePromPiece(move)!=noPc)?intToPiece[decodePromPiece(move)]:"");
     }
     public static void printMove(int move) {
         System.out.println("piece     |  from      |  to        |  promotion |  capture   |  dbl push  |  en pass   |  castle\n");
@@ -596,7 +603,7 @@ public abstract class MoveGen {
         System.out.println("piece     |  from      |  to        |  promotion |  capture   |  dbl push  |  en pass   |  castle\n");
 
         for(int i = 0; i < l.count; i++) {
-            int move = l.moves[i];
+            int move = l.moves[i].move;
             print = intToPiece[decodePiece(move)] + "         |  " + squareToCoords[decodeFrom(move)] + "        |  "
                     + squareToCoords[decodeTo(move)] + "        |  " +
                     ((intToPiece[decodePromPiece(move)] == "none") ? "-         |  " : intToPiece[decodePromPiece(move)] +
@@ -642,11 +649,11 @@ public abstract class MoveGen {
                             }
                             //single push
                             else {
-                                addMove(encodeMove(startSquare, targetSquare, P, 0, 0, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, targetSquare, P, noPc, 0, 0, 0, 0), moveList1);
                                 //dbl push
                                 if(startSquare >= a2 && startSquare <= h2 && ((1L<< (startSquare + 8)) & occupancies[occBothIdx]) == 0 && ((1L<< (startSquare + 16)) & occupancies[occBothIdx]) == 0) {
                                     targetSquare +=8;
-                                    addMove(encodeMove(startSquare, targetSquare, P, 0, 0, 1, 0, 0), moveList1);
+                                    addMove(encodeMove(startSquare, targetSquare, P, noPc, 0, 1, 0, 0), moveList1);
                                 }
                             }
                         }
@@ -655,7 +662,7 @@ public abstract class MoveGen {
                         //enps
                         if(enPs != noSq) {
                             if((pawnAttacks[1][startSquare] & (1L << enPs)) != 0) {
-                                addMove(encodeMove(startSquare, enPs, P, 0, 1, 0, 1, 0), moveList1);
+                                addMove(encodeMove(startSquare, enPs, P, noPc, 1, 0, 1, 0), moveList1);
 
                             }
                         }
@@ -670,7 +677,7 @@ public abstract class MoveGen {
 
                             } else {
                                 //normal attack
-                                addMove(encodeMove(startSquare, targetSquare, P, 0, 1, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, targetSquare, P, noPc, 1, 0, 0, 0), moveList1);
 
                             }
 
@@ -689,12 +696,12 @@ public abstract class MoveGen {
                     if((castling & KsWCas) !=0) {
                         //can castle ks
                          if(get_bit(occupancies[occBothIdx], f1) ==0 && get_bit(occupancies[occBothIdx], g1) ==0 && !isSquareAttacked(e1, BLACK) && !isSquareAttacked(f1, BLACK)) {
-                             addMove(encodeMove(e1, g1, K, 0, 0, 0, 0, 1), moveList1);
+                             addMove(encodeMove(e1, g1, K, noPc, 0, 0, 0, 1), moveList1);
                          }
                     }
                     if((castling & QsWCas) != 0) {
                         if(get_bit(occupancies[occBothIdx], d1) ==0 && get_bit(occupancies[occBothIdx], c1) ==0 && get_bit(occupancies[occBothIdx], b1) ==0 && !isSquareAttacked(e1, BLACK) && !isSquareAttacked(d1, BLACK)) {
-                            addMove(encodeMove(e1, c1, K, 0, 0, 0, 0, 1), moveList1);
+                            addMove(encodeMove(e1, c1, K, noPc, 0, 0, 0, 1), moveList1);
                         }
                     }
                 }
@@ -719,12 +726,12 @@ public abstract class MoveGen {
                             }
                             //single push
                             else {
-                                addMove(encodeMove(startSquare, targetSquare, p, 0, 0, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, targetSquare, p, noPc, 0, 0, 0, 0), moveList1);
 
                                 //dbl push
                                 if(startSquare >= a7 && startSquare <= h7 && ((1L<< (startSquare - 8)) & occupancies[occBothIdx]) == 0 && ((1L<< (startSquare - 16)) & occupancies[occBothIdx]) == 0) {
                                     targetSquare -=8;
-                                    addMove(encodeMove(startSquare, targetSquare, p, 0, 0, 1, 0, 0), moveList1);
+                                    addMove(encodeMove(startSquare, targetSquare, p, noPc, 0, 1, 0, 0), moveList1);
 
                                 }
                             }
@@ -734,7 +741,7 @@ public abstract class MoveGen {
                         //enps
                         if(enPs != noSq) {
                             if((pawnAttacks[0][startSquare] & (1L << enPs)) != 0) {
-                                addMove(encodeMove(startSquare, enPs, p, 0, 1, 0, 1, 0), moveList1);
+                                addMove(encodeMove(startSquare, enPs, p, noPc, 1, 0, 1, 0), moveList1);
 
                             }
                         }
@@ -749,7 +756,7 @@ public abstract class MoveGen {
 
                             } else {
                                 //normal attack
-                                addMove(encodeMove(startSquare, targetSquare, p, 0, 1, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, targetSquare, p, noPc, 1, 0, 0, 0), moveList1);
 
 
                             }
@@ -769,13 +776,13 @@ public abstract class MoveGen {
                     if((castling & KsBCas) !=0) {
                         //can castle ks
                         if(get_bit(occupancies[occBothIdx], f8) ==0 && get_bit(occupancies[occBothIdx], g8) ==0 && !isSquareAttacked(e8, WHITE) && !isSquareAttacked(f8, WHITE)) {
-                            addMove(encodeMove(e8, g8, k, 0, 0, 0, 0, 1), moveList1);
+                            addMove(encodeMove(e8, g8, k, noPc, 0, 0, 0, 1), moveList1);
 
                         }
                     }
                     if((castling & QsBCas) != 0) {
                         if(get_bit(occupancies[occBothIdx], d8) ==0 && get_bit(occupancies[occBothIdx], c8) ==0 && get_bit(occupancies[occBothIdx], b8) ==0 && !isSquareAttacked(e8, WHITE) && !isSquareAttacked(d8, WHITE)) {
-                            addMove(encodeMove(e8, c8, k, 0, 0, 0, 0, 1), moveList1);
+                            addMove(encodeMove(e8, c8, k, noPc, 0, 0, 0, 1), moveList1);
                         }
                     }
                 }
@@ -791,11 +798,11 @@ public abstract class MoveGen {
                     while(knightAttack != 0) {
                         targetSquare = getLs1bIndex(knightAttack);
                         if(((1L << targetSquare) & ((piece == N)? occupancies[BLACK] : occupancies[WHITE])) != 0) {
-                            addMove(encodeMove(startSquare, targetSquare, piece, 0, 1, 0, 0, 0), moveList1);
+                            addMove(encodeMove(startSquare, targetSquare, piece, noPc, 1, 0, 0, 0), moveList1);
 
                         } else {
                             //quiet
-                            addMove(encodeMove(startSquare, targetSquare, piece, 0, 0, 0, 0, 0), moveList1);
+                            addMove(encodeMove(startSquare, targetSquare, piece, noPc, 0, 0, 0, 0), moveList1);
                         }
                         knightAttack = pop_bit(knightAttack, targetSquare);
                     }
@@ -813,10 +820,10 @@ public abstract class MoveGen {
                         int attack = getLs1bIndex(attacks);
                         if(((1L << attack) & ((side==WHITE)?occupancies[occWIdx] : occupancies[occBIdx])) == 0) {
                             if(((1L << attack) & ((side==WHITE)?occupancies[occBIdx] : occupancies[occWIdx])) != 0) {
-                                addMove(encodeMove(startSquare, attack, piece, 0, 1, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, attack, piece, noPc, 1, 0, 0, 0), moveList1);
 
                             } else {
-                                addMove(encodeMove(startSquare, attack, piece, 0, 0, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, attack, piece, noPc, 0, 0, 0, 0), moveList1);
 
                             }
                         }
@@ -836,9 +843,9 @@ public abstract class MoveGen {
                         int attack = getLs1bIndex(attacks);
                         if(((1L << attack) & ((side==WHITE)?occupancies[occWIdx] : occupancies[occBIdx])) == 0) {
                             if(((1L << attack) & ((side==WHITE)?occupancies[occBIdx] : occupancies[occWIdx])) != 0) {
-                                addMove(encodeMove(startSquare, attack, piece, 0, 1, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, attack, piece, noPc, 1, 0, 0, 0), moveList1);
                             } else {
-                                addMove(encodeMove(startSquare, attack, piece, 0, 0, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, attack, piece, noPc, 0, 0, 0, 0), moveList1);
                             }
                         }
                         attacks = pop_bit(attacks, attack);
@@ -857,10 +864,10 @@ public abstract class MoveGen {
                         int attack = getLs1bIndex(attacks);
                         if(((1L << attack) & ((side==WHITE)?occupancies[occWIdx] : occupancies[occBIdx])) == 0) {
                             if(((1L << attack) & ((side==WHITE)?occupancies[occBIdx] : occupancies[occWIdx])) != 0) {
-                                addMove(encodeMove(startSquare, attack, piece, 0, 1, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, attack, piece, noPc, 1, 0, 0, 0), moveList1);
 
                             } else {
-                                addMove(encodeMove(startSquare, attack, piece, 0, 0, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, attack, piece, noPc, 0, 0, 0, 0), moveList1);
                             }
                         }
                         attacks = pop_bit(attacks, attack);
@@ -880,10 +887,10 @@ public abstract class MoveGen {
                 while(attacks !=0) {
                     int attack = getLs1bIndex(attacks);
                     if(((1L << attack) & ((side==WHITE)?occupancies[occBIdx] : occupancies[occWIdx])) != 0) {
-                        addMove(encodeMove(startSquare, attack, piece, 0, 1, 0, 0, 0), moveList1);
+                        addMove(encodeMove(startSquare, attack, piece, noPc, 1, 0, 0, 0), moveList1);
 
                     } else {
-                        addMove(encodeMove(startSquare, attack, piece, 0, 0, 0, 0, 0), moveList1);
+                        addMove(encodeMove(startSquare, attack, piece, noPc, 0, 0, 0, 0), moveList1);
 
                     }
 
@@ -892,20 +899,12 @@ public abstract class MoveGen {
             }
         }
 
-
+        if(!scoringPV) {
+            followingPVLine = false;
+        }
     }
 
-    public static final int[] castleRights = new int[] {
-            11, 15, 15, 15,  3, 15, 15,  7,
-            15, 15, 15, 15, 15, 15, 15, 15,
-            15, 15, 15, 15, 15, 15, 15, 15,
-            15, 15, 15, 15, 15, 15, 15, 15,
-            15, 15, 15, 15, 15, 15, 15, 15,
-            15, 15, 15, 15, 15, 15, 15, 15,
-            15, 15, 15, 15, 15, 15, 15, 15,
-            14, 15, 15, 15, 12, 15, 15, 13,
 
-    };
 
 
     //MAKE MOVE
@@ -933,10 +932,16 @@ public abstract class MoveGen {
             bitboards[piece] = set_bit(bitboards[piece], targetSquare);
 
             if(capture == 1) {
+                int pawnForSide;
+                int kingForSide;
                 //if capture
-
-                int pawnForSide = (side == WHITE)?p : P;
-                int kingForSide = (side == WHITE)?k : K;
+                if(side==WHITE) {
+                    pawnForSide = p;
+                    kingForSide = k;
+                } else {
+                    pawnForSide = P;
+                    kingForSide = K;
+                }
                 if(enPass == 0) {
                     for (int i = pawnForSide; i <= kingForSide; i++) {
                         if (get_bit(bitboards[i], targetSquare) != 0) {
@@ -985,7 +990,7 @@ public abstract class MoveGen {
                     enPs = targetSquare +8;
                 }
             }
-            if(promPiece !=0) {
+            if(promPiece !=noPc) {
                 if(side == WHITE) {
                     bitboards[P] = pop_bit(bitboards[P], targetSquare);
                 } else {
@@ -1181,8 +1186,8 @@ public abstract class MoveGen {
 
 
         for(int i = 0; i < list.count; i++) {
-            if(makeMove(list.moves[i], allMoves)) {
-                unmakeMove(list.moves[i], allMoves);
+            if(makeMove(list.moves[i].move, allMoves)) {
+                unmakeMove(list.moves[i].move, allMoves);
                 return noMate;
             }
         }
@@ -1207,9 +1212,9 @@ public abstract class MoveGen {
         MoveList moveList = new MoveList();
         generateMoves(moveList);
         for (int i = 0; i < moveList.count; i++) {
-            if(makeMove(moveList.moves[i], allMoves)) {
+            if(makeMove(moveList.moves[i].move, allMoves)) {
                 findNodesForPosPerft(depth-1);
-                unmakeMove(moveList.moves[i], allMoves);
+                unmakeMove(moveList.moves[i].move, allMoves);
             }
 
 

@@ -1,7 +1,6 @@
 package com.example.Engine;
 
 
-import static com.example.Engine.GameBoard.B;
 
 public abstract class Constants {
     public static int randStartSeed = 1804289383;
@@ -15,6 +14,8 @@ public abstract class Constants {
         a7=48;b7=49;c7=50;d7=51;e7=52;f7=53;g7=54;h7=55;
         a8=56;b8=57;c8=58;d8=59;e8=60;f8=61;g8=62;h8=63;
         noSq=64;
+
+
     }
 
     public static final int infinity = 50000;
@@ -31,6 +32,7 @@ public abstract class Constants {
     public static final int WHITE = 1;
     public static final boolean bishop = true;
     public static final boolean rook = false;
+    public static final int maxPly = 64;
     //tables
     public static long[] kingAttacks = new long[64];
     public static long[][] pawnAttacks = new long[2][64];
@@ -51,7 +53,6 @@ public abstract class Constants {
             noSq;
 
     public static final int[] pieceScoreEvalTable = new int[] {
-        0,
         100,
         300,
         350,
@@ -63,8 +64,27 @@ public abstract class Constants {
         -350,
         -500,
         -1000,
-        -10000
+        -10000,
+        0
     };
+
+    public static final int occBIdx = 0;
+    public static final int occWIdx = 1;
+    public static final int occBothIdx = 2;
+
+    public static final int noPc = 12;
+    public static final int P = 0;
+    public static final int N = 1;
+    public static final int B = 2;
+    public static final int R = 3;
+    public static final int Q = 4;
+    public static final int K = 5;
+    public static final int p = 6;
+    public static final int n = 7;
+    public static final int b = 8;
+    public static final int r = 9;
+    public static final int q = 10;
+    public static final int k = 11;
 
     public static final int[] blackPawnScore = new int[] {
           //A    B    C    D    E    F    G    H
@@ -187,6 +207,35 @@ public abstract class Constants {
             0,  0,  0,  0,  0,  0,  0,  0
     };
 
+    public static final int[] castleRights = new int[] {
+            11, 15, 15, 15,  3, 15, 15,  7,
+            15, 15, 15, 15, 15, 15, 15, 15,
+            15, 15, 15, 15, 15, 15, 15, 15,
+            15, 15, 15, 15, 15, 15, 15, 15,
+            15, 15, 15, 15, 15, 15, 15, 15,
+            15, 15, 15, 15, 15, 15, 15, 15,
+            15, 15, 15, 15, 15, 15, 15, 15,
+            14, 15, 15, 15, 12, 15, 15, 13,
+
+    };
+    //attacker first
+
+    public static int[][] MVVLVA= new int[][] {
+            {105, 205, 305, 405, 505, 605, 105, 205, 305, 405, 505, 605},
+            {104, 204, 304, 404, 504, 604, 104, 204, 304, 404, 504, 604},
+            {103, 203, 303, 403, 503, 603, 103, 203, 303, 403, 503, 603},
+            {102, 202, 302, 402, 502, 602, 102, 202, 302, 402, 502, 602},
+            {101, 201, 301, 401, 501, 601, 101, 201, 301, 401, 501, 601},
+            {100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600},
+            {105, 205, 305, 405, 505, 605, 105, 205, 305, 405, 505, 605},
+            {104, 204, 304, 404, 504, 604, 104, 204, 304, 404, 504, 604},
+            {103, 203, 303, 403, 503, 603, 103, 203, 303, 403, 503, 603},
+            {102, 202, 302, 402, 502, 602, 102, 202, 302, 402, 502, 602},
+            {101, 201, 301, 401, 501, 601, 101, 201, 301, 401, 501, 601},
+            {100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600}
+
+    };
+
 
 
     public enum files {
@@ -202,7 +251,7 @@ public abstract class Constants {
     }
 
     public static final String[] intToPiece = new String[] {
-            "none", "P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"
+            "P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k", "none"
     };
     public static final String[] squareToCoords = new String[] {
             "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",

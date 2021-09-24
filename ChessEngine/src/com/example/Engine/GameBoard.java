@@ -8,23 +8,7 @@ public abstract class GameBoard {
     public static long[] occupancies = new long[] {
             0L, 0L, 0L
     };
-    public static final int occBIdx = 0;
-    public static final int occWIdx = 1;
-    public static final int occBothIdx = 2;
 
-    public static final int noPc = 0;
-    public static final int P = 1;
-    public static final int N = 2;
-    public static final int B = 3;
-    public static final int R = 4;
-    public static final int Q = 5;
-    public static final int K = 6;
-    public static final int p = 7;
-    public static final int n = 8;
-    public static final int b = 9;
-    public static final int r = 10;
-    public static final int q = 11;
-    public static final int k = 12;
 
     public static int castling = 0b0;
     public static int enPs = noSq;
@@ -32,37 +16,30 @@ public abstract class GameBoard {
     public static int halfMoveClock = 0;
     public static int fullMoveCount = 0;
 
-    public static long[] bitboardsCopy = new long[12];
-    public static long[] occupanciesCopy = new long[3];
-
-    public static int side_copy, enpassant_copy, castle_copy;
-
-
 
     public static int KsWCas = 0b1000;
-    public static int QsWCas = 0b100;
-    public static int KsBCas = 0b10;
-    public static int QsBCas = 0b1;
+    public static int QsWCas =  0b100;
+    public static int KsBCas =   0b10;
+    public static int QsBCas =    0b1;
 
 
 
 
     public static void printState() {
-        char[] BBIDS = new char[] {'e', '♟', '♞', '♝', '♜', '♛', '♚', '♙', '♘', '♗', '♖', '♕', '♔'};
-        String[] allSBoards = new String[13];
+        char[] BBIDS = new char[] {'♟', '♞', '♝', '♜', '♛', '♚', '♙', '♘', '♗', '♖', '♕', '♔', 'e'};
 
 
 //        System.out.println(Integer.toString(gameState.otherInfo, 2));
 
         for(int i = 7; i >= 0; i -- ) {
             for(int j = 0; j < 8; j++) {
-                for(int k = P; k < bitboards.length; k ++) {
+                for(int l = P; l <= k; l ++) {
 
-                    if(BitBoard.get_bit(bitboards[k], i*8+j) != 0) {
-                        System.out.print(BBIDS[k]);
+                    if(BitBoard.get_bit(bitboards[l], i*8+j) != 0) {
+                        System.out.print(BBIDS[l]);
                         break;
                     }
-                    if(k==bitboards.length-1) {
+                    if(l==k) {
                         System.out.print(" · ");
                     }
                 }
@@ -81,7 +58,7 @@ public abstract class GameBoard {
 
     public static void loadFEN(String FEN) {
         char[] FENSplit= FEN.toCharArray();
-        for(int i =P; i < bitboards.length; i++) {
+        for(int i =P; i <= k; i++) {
             bitboards[i] = 0L;
         }
         for(int i = 0; i < occupancies.length; i++) {
@@ -181,7 +158,7 @@ public abstract class GameBoard {
         }
         occupancies[WHITE] = 0;
         occupancies[occBothIdx] = 0;
-        for(int i = 0; i <= K; i++) {
+        for(int i = P; i <= K; i++) {
             occupancies[WHITE] |= bitboards[i];
             occupancies[occBothIdx] |= bitboards[i];
         }

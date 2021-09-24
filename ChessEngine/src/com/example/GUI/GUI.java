@@ -1,10 +1,12 @@
 package com.example.GUI;
 
 import com.example.Engine.BitBoard;
+import com.example.Engine.Constants;
 import com.example.Engine.GameBoard;
 
 import static com.example.Engine.BitBoard.*;
 import static com.example.Engine.GameBoard.*;
+import static com.example.Engine.Constants.*;
 import static com.example.Engine.Search.*;
 import static com.example.Game.*;
 import static com.example.Engine.MoveGen.*;
@@ -378,11 +380,11 @@ public class GUI {
 
 
         public void updateTile() {
-            String[] BBIDS = new String[] {"e", "wP", "wN", "wB", "wR", "wQ", "wK", "bP", "bN", "bB", "bR", "bQ", "bK"};
+            String[] BBIDS = new String[] {"wP", "wN", "wB", "wR", "wQ", "wK", "bP", "bN", "bB", "bR", "bQ", "bK", "e"};
             String[] allSBoards = new String[13];
 
             for(int k = P, exit = 0; k <= GameBoard.bitboards.length && exit == 0; k ++) {
-                if(k == GameBoard.k+1) {
+                if(k == Constants.k+1) {
                     try {
                         this.removeAll();
                         BufferedImage image = ImageIO.read(new File("Res/1x1.png"));
