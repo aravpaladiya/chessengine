@@ -7,6 +7,7 @@ import com.example.Engine.MoveList;
 import com.example.Engine.Search;
 import com.example.GUI.GUI;
 import com.example.Engine.Evaluate;
+import com.example.GUI.UCI;
 
 import javax.swing.*;
 
@@ -103,7 +104,7 @@ public class Game {
         done_:
         while(!done) {
             while (!moveMade) {
-//                Thread.onSpinWait();
+                Thread.onSpinWait();
                 if(newFEN) {
                     break done_;
                 }
@@ -136,7 +137,9 @@ public class Game {
 //    "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9 "
 
     public static void main(String[] args) {
-        loadFEN(startFEN);
+        loadFEN(very_hard_position);
+        computerColor = BLACK;
+        playerColor = WHITE;
         initAll();
         gui.chessBoard.updateBoard();
         printState();
