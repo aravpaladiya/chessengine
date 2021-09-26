@@ -1,25 +1,15 @@
 package com.example;
 
 
-import com.example.Engine.BitBoard;
 import com.example.Engine.MoveList;
 
-import com.example.Engine.Search;
 import com.example.GUI.GUI;
-import com.example.Engine.Evaluate;
-import com.example.GUI.UCI;
 
-import javax.swing.*;
-
-import static com.example.Engine.Evaluate.*;
 import static com.example.Engine.MoveGen.*;
 import static com.example.Engine.GameBoard.*;
 import static com.example.Engine.Constants.*;
-import static com.example.Engine.BitBoard.*;
 import static com.example.Engine.Search.*;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Stack;
 
 public class Game {
@@ -28,7 +18,8 @@ public class Game {
     public static int computerColor = playerColor^1;
     private static boolean gameOver = false;
     public static volatile boolean moveMade = false;
-    public static int searchDepth = 9;//e4 e5 nodes 32835908 depth 9 comp = black no mvvlva quisence 45-50 secs
+    public static long timeAssigned = 10000000000L;
+    public static int maxDepth = 64;//e4 e5 nodes 32835908 depth 9 comp = black no mvvlva quisence 45-50 secs
     public static int userTarget = 64;//e4 e5 nodes 32833274
     public static int userStart = 64;
     public static Stack<Integer> stack = new Stack<>();
@@ -53,10 +44,10 @@ public class Game {
         printState();
 
         int count = 1000;
-        gui.updateDepth(searchDepth);
+        gui.updateDepth(maxDepth);
 
         while(!gameOver && count!=0) {
-            int score = searchPosition(searchDepth);
+            int score = searchPosition(maxDepth);
             gui.updateScore((float)(score)/100*((side==WHITE)?1:-1));
             makeMove(principalVariation[0][0], allMoves);
             gui.chessBoard.updateBoard();
@@ -75,11 +66,11 @@ public class Game {
         printState();
 
         int count = 1000;
-        gui.updateDepth(searchDepth);
+        gui.updateDepth(maxDepth);
 
         while(!gameOver && count!=0) {
             if(side == computerColor) {
-                int score = searchPosition(searchDepth);
+                int score = searchPosition(maxDepth);
                 gui.updateScore((float)(score)/100*((side==WHITE)?1:-1));
                 makeMove(principalVariation[0][0], allMoves);
                 gui.chessBoard.updateBoard();
@@ -137,9 +128,7 @@ public class Game {
 //    "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9 "
 
     public static void main(String[] args) {
-        loadFEN(very_hard_position);
-        computerColor = BLACK;
-        playerColor = WHITE;
+        loadFEN(startFEN);
         initAll();
         gui.chessBoard.updateBoard();
         printState();

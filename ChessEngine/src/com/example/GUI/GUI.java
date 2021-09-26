@@ -4,14 +4,10 @@ import com.example.Engine.BitBoard;
 import com.example.Engine.Constants;
 import com.example.Engine.GameBoard;
 
-import static com.example.Engine.BitBoard.*;
 import static com.example.Engine.GameBoard.*;
 import static com.example.Engine.Constants.*;
-import static com.example.Engine.Search.*;
 import static com.example.Game.*;
-import static com.example.Engine.MoveGen.*;
 
-import static com.example.Game.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -116,14 +112,14 @@ public class GUI {
         options = new OptionsPanel();
         options.setBackground(Color.DARK_GRAY);
         reduceDepth.addActionListener(e -> {
-            if(searchDepth>1) {
-                searchDepth--;
-                updateDepth(searchDepth);
+            if(maxDepth >1) {
+                maxDepth--;
+                updateDepth(maxDepth);
             }
         });
         increaseDepth.addActionListener(e -> {
-            searchDepth++;
-            updateDepth(searchDepth);
+            maxDepth++;
+            updateDepth(maxDepth);
         });
         options.add(reduceDepth);
         options.add(increaseDepth);
@@ -322,10 +318,8 @@ public class GUI {
 //                    userTarget = id;
 //                    Game.moveMade = true;
                     if(userStart == 64) {
-                        System.out.println("start made");
                         userStart = id;
                     } else {
-                        System.out.println("target made");
                         userTarget = id;
                         moveMade = true;
 
