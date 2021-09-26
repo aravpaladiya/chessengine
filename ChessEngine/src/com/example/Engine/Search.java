@@ -29,7 +29,7 @@ public class Search {
 
     public static int searchPosition(int depth) {
         int score = 0;
-            killerMoves = new int[2][maxPly];
+        killerMoves = new int[2][maxPly];
         principalVariation = new int[64][64];
         PVLength = new int[maxPly];
         historyMoves = new int[12][64];
@@ -41,9 +41,13 @@ public class Search {
             score = negamax(i, -infinity, infinity);
             long finish = System.nanoTime();
             System.out.println("\ntime: " + (float)(finish-start)/1000000000 + " depth: " + i + " score: " + (float)(score)/100 + " move: " + getShortMove(principalVariation[0][0]) + " nodes: " + searchNodes);
-            System.out.print("principal variation: ");
-            for(int j = 0; j < i; j++) {
-                System.out.print(getShortMove(principalVariation[0][j]) + " ");
+            System.out.print("principal variation:");
+            for (int j = 0; j < i; j++) {
+                if (principalVariation[0][j] == 0 || ((score < 0) ? infinity + score == j : infinity - score == j)) {
+                    System.out.print("#");
+                    break;
+                }
+                System.out.print(" " +getShortMove(principalVariation[0][j]));
             }
             System.out.println();
         }
@@ -53,27 +57,6 @@ public class Search {
         return score;
 
     }
-
-    public static int testSearch() {
-        searchNodes = 0;
-        long start = System.nanoTime();
-        int score = negamax(6, -infinity, infinity);
-        long finish = System.nanoTime();
-        System.out.println("\ntime: " + (float)(finish-start)/1000000000 + " depth: " + 6 + " score: " + (float)(score)/100 + " move: " + getShortMove(principalVariation[0][0]) + " nodes: " + searchNodes);
-        System.out.print("principal variation: ");
-        for(int j = 0; j < 6; j++) {
-            System.out.print(getShortMove(principalVariation[0][j]) + " ");
-        }
-        System.out.println();
-        return score;
-    }
-
-    public static void sortMoves(MoveList list) {
-        MoveSort.sortList(list);
-    }
-
-
-
 
     public static int quiescence(int alpha, int beta) {
         searchNodes++;
@@ -87,19 +70,21 @@ public class Search {
 
 
         MoveList searchList = new MoveList();
-        generateMoves(searchList);
+        generateCapMoves(searchList);
+
         for(int i = 0; i < searchList.count; i++) {
 
-            if(makeMove(searchList.getNextMove(i).move, capMoves)) {
+            if(makeMove(searchList.getNextMove(i).move, allMoves)) {
+
                 ply++;
                 int score = -quiescence(-beta, -alpha);
                 ply--;
                 unmakeMove(searchList.moves[i].move, allMoves);
 
-                if(score >= beta) {
+                if (score >= beta) {
                     return beta;
                 }
-                if(score > alpha) {
+                if (score > alpha) {
                     alpha = score;
                 }
             }
@@ -181,7 +166,7 @@ public class Search {
         if(legalMoveCount == 0) {
 
             if(isSquareAttacked(BitBoard.getLs1bIndex(bitboards[side==WHITE?K:k]), side^1)) {
-                return -49000+ply;
+                return -infinity+ply;
             } else {
                 return 0;
             }

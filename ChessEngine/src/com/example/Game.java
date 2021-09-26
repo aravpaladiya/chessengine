@@ -23,12 +23,12 @@ import java.util.Stack;
 
 public class Game {
 
-    private static int playerColor = WHITE;
+    private static int playerColor = BLACK;
     public static int computerColor = playerColor^1;
     private static boolean gameOver = false;
     public static volatile boolean moveMade = false;
-    public static int searchDepth = 8;
-    public static int userTarget = 64;
+    public static int searchDepth = 9;//e4 e5 nodes 32835908 depth 9 comp = black no mvvlva quisence 45-50 secs
+    public static int userTarget = 64;//e4 e5 nodes 32833274
     public static int userStart = 64;
     public static Stack<Integer> stack = new Stack<>();
     public static int score = 0;
@@ -40,7 +40,7 @@ public class Game {
 
 
     public static void debug() {
-        testSearch();
+
 
     }
 
