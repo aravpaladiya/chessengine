@@ -53,6 +53,7 @@ public class Search {
                 stopSearch = false;
                 break;
             } else {
+                //uci print
                 System.out.print("info score cp " + oldScore + "  depth " + i + " nodes " + searchNodes + " time " + (finish-searchStartNs)/1000000 + " pv ");
                 for (int j = 0; j < i; j++) {
                     if (prevPV[j] == 0 || ((score < 0) ? 49000 + score == j : 49000 - score == j)) {
@@ -75,7 +76,7 @@ public class Search {
 
     public static int quiescence(int alpha, int beta) {
         searchNodes++;
-        if((searchNodes & 32767) == 0) {
+        if((searchNodes & 2047) == 0) {
             if(checkForStop()) {
                 return 0;
             }
@@ -214,11 +215,14 @@ public class Search {
                 ply++;
                 legalMoveCount++;
                 if(movesSearched == 0) {
+                    //closed window
 //                    score = -negamax(depth-1, -alpha-1, -alpha);
 //                    if(score > alpha && score < beta) {
+                    //open window
                     score = -negamax(depth-1, -beta, -alpha);
 //                    }
                 } else {
+                    //lmr
                     if(depth >= 3 && movesSearched >= 4 && !inCheck && decodeCap(searchList.moves[i].move) == 0 && decodePromPiece(searchList.moves[i].move)==noPc) {
                         score = -negamax(depth-2, -alpha - 1, -alpha);
 
@@ -255,6 +259,7 @@ public class Search {
 
                 if(score > alpha) {
                     alpha = score;
+                    //history
                     if(decodeCap(searchList.moves[i].move)==0) {
                         historyMoves[decodePiece(searchList.moves[i].move)][decodeTo(searchList.moves[i].move)] = 1 << depth;
                     }
@@ -282,35 +287,5 @@ public class Search {
         return alpha;
     }
 
-//    public static int maxi(int depth) {
-//        int score;
-//        int max = -50000;
-//        if(depth == 0) {
-//            return evaluate();
-//        }
-//        MoveList searchList = new MoveList();
-//        generateMoves(searchList);
-//        for(int i = 0; i < searchList.count; i++) {
-//            if(makeMove(searchList.moves[i], allMoves)) {
-//                ply++;
-//                score = mini(depth-1);
-//                unmakeMove(searchList.moves[i], allMoves);
-//                ply--;
-//                if(score > max) {
-//                    max = score;
-//                    if(ply==0) {
-//                        System.out.println("0 ply");
-//                        bestMove = searchList.moves[i];
-//                    }
-//                }
-//                if(ply == 0) {
-//                    System.out.println("normal 0 ply");
-//                }
-//            }
-//        }
-//        if(ply == 0) {
-//            return bestMove;
-//        }
-//        return max;
-//    }
+
 }

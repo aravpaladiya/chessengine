@@ -1237,7 +1237,6 @@ public abstract class MoveGen {
         }
 
         else if(flag == capMoves) {
-            //if cap, make normal move for now
             if(decodeCap(move)==1) {
                 return makeMove(move, allMoves);
             } else {
@@ -1254,11 +1253,10 @@ public abstract class MoveGen {
 
 
     }
-    // Unmake move, inverse of make move, irreversible aspects from stack
+    // Unmake move
 
     public static boolean unmakeMove(int move, int flag) {
         if(flag == allMoves) {
-            //unmake move
             /*
                 stackItem encode:
                 cap Piece = 0000 0000 0000 1111;
@@ -1298,8 +1296,6 @@ public abstract class MoveGen {
                 }
             }
             enPs = (stackItem & 0b111111100000000) >>> 8;
-            //needs stack//done
-            //update castle rights
             castling = (stackItem & 0b11110000) >>> 4;
 
 
@@ -1389,7 +1385,7 @@ public abstract class MoveGen {
 
 
 
-    //PERFT(performance test)
+    //PERFT
     public static long nMoves = 0;
 
     public static void findNodesForPosPerft(int depth) {
@@ -1409,9 +1405,6 @@ public abstract class MoveGen {
 
 
         }
-
-
-        return;
     }
     private static long perftNodes;
 
