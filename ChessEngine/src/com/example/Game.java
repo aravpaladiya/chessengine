@@ -1,14 +1,11 @@
 package com.example;
 
 
-import com.example.Engine.MoveList;
-
-import com.example.GUI.GUI;
+import com.example.GUI.UCI.UCI;
 
 import static com.example.Engine.MoveGen.*;
 import static com.example.Engine.GameBoard.*;
 import static com.example.Engine.Constants.*;
-import static com.example.Engine.Search.*;
 
 import java.util.Stack;
 
@@ -24,7 +21,7 @@ public class Game {
     public static int userStart = 64;
     public static Stack<Integer> stack = new Stack<>();
     public static int score = 0;
-    public static GUI gui = new GUI();
+//    public static GUI gui = new GUI();
     public static boolean playerLeaveTurnGUI = false;
     public static boolean newFEN = false;
 
@@ -36,91 +33,91 @@ public class Game {
 
     }
 
+//
+//
+//    public static void AIvsAI() {
+//        gui.chessBoard.updateBoard();
+//
+//        printState();
+//
+//        int count = 1000;
+//        gui.updateDepth(maxDepth);
+//
+//        while(!gameOver && count!=0) {
+//            int score = searchPosition(maxDepth);
+//            gui.updateScore((float)(score)/100*((side==WHITE)?1:-1));
+//            makeMove(principalVariation[0][0], allMoves);
+//            gui.chessBoard.updateBoard();
+//
+//            if(isInMate(side) == staleMate || isInMate(side) == checkMate) {
+//                gameOver = true;
+//            }
+//            count--;
+//
+//        }
+//
+//    }
+//
+//    public static void run() {
+//        gui.chessBoard.updateBoard();
+//        printState();
+//
+//        int count = 1000;
+//        gui.updateDepth(maxDepth);
+//
+//        while(!gameOver && count!=0) {
+//            if(side == computerColor) {
+//                int score = searchPosition(maxDepth);
+//                gui.updateScore((float)(score)/100*((side==WHITE)?1:-1));
+//                makeMove(principalVariation[0][0], allMoves);
+//                gui.chessBoard.updateBoard();
+//
+//
+//            } else if(side == playerColor) {
+//                playerTurn();
+//            }
+//
+//            if(isInMate(side) == staleMate || isInMate(side) == checkMate) {
+//                gameOver = true;
+//            }
+//            count--;
+//
+//        }
+//    }
 
-
-    public static void AIvsAI() {
-        gui.chessBoard.updateBoard();
-
-        printState();
-
-        int count = 1000;
-        gui.updateDepth(maxDepth);
-
-        while(!gameOver && count!=0) {
-            int score = searchPosition(maxDepth);
-            gui.updateScore((float)(score)/100*((side==WHITE)?1:-1));
-            makeMove(principalVariation[0][0], allMoves);
-            gui.chessBoard.updateBoard();
-
-            if(isInMate(side) == staleMate || isInMate(side) == checkMate) {
-                gameOver = true;
-            }
-            count--;
-
-        }
-
-    }
-
-    public static void run() {
-        gui.chessBoard.updateBoard();
-        printState();
-
-        int count = 1000;
-        gui.updateDepth(maxDepth);
-
-        while(!gameOver && count!=0) {
-            if(side == computerColor) {
-                int score = searchPosition(maxDepth);
-                gui.updateScore((float)(score)/100*((side==WHITE)?1:-1));
-                makeMove(principalVariation[0][0], allMoves);
-                gui.chessBoard.updateBoard();
-
-
-            } else if(side == playerColor) {
-                playerTurn();
-            }
-
-            if(isInMate(side) == staleMate || isInMate(side) == checkMate) {
-                gameOver = true;
-            }
-            count--;
-
-        }
-    }
-
-    public static void playerTurn() {
-        MoveList playerList = new MoveList();
-        generateMoves(playerList);
-        boolean done = false;
-        done_:
-        while(!done) {
-            while (!moveMade) {
-                Thread.onSpinWait();
-                if(newFEN) {
-                    break done_;
-                }
-            }
-
-            for(int i = 0; i < playerList.count; i++) {
-                if(makeMove(playerList.moves[i].move, allMoves)) {
-                    if (decodeFrom(playerList.moves[i].move) == userStart && decodeTo(playerList.moves[i].move) == userTarget && (decodePromPiece(playerList.moves[i].move) == Q || decodePromPiece(playerList.moves[i].move) == q || decodePromPiece(playerList.moves[i].move) == noPc)) {
-                        done = true;
-                        break;
-                    } else {
-                        unmakeMove(playerList.moves[i].move, allMoves);
-                    }
-                }
-            }
-            gui.chessBoard.updateBoard();
-            userTarget = 64;
-            userStart = 64;
-            moveMade = false;
-        }
-        if(newFEN) {
-            newFEN = false;
-            playerTurn();
-        }
-    }
+//    public static void playerTurn() {
+//        MoveList playerList = new MoveList();
+//        generateMoves(playerList);
+//        boolean done = false;
+//        done_:
+//        while(!done) {
+//            while (!moveMade) {
+//                Thread.onSpinWait();
+//                if(newFEN) {
+//                    break done_;
+//                }
+//            }
+//
+//            for(int i = 0; i < playerList.count; i++) {
+//                if(makeMove(playerList.moves[i].move, allMoves)) {
+//                    if (decodeFrom(playerList.moves[i].move) == userStart && decodeTo(playerList.moves[i].move) == userTarget && (decodePromPiece(playerList.moves[i].move) == Q || decodePromPiece(playerList.moves[i].move) == q || decodePromPiece(playerList.moves[i].move) == noPc)) {
+//                        done = true;
+//                        break;
+//                    } else {
+//                        unmakeMove(playerList.moves[i].move, allMoves);
+//                    }
+//                }
+//            }
+//            gui.chessBoard.updateBoard();
+//            userTarget = 64;
+//            userStart = 64;
+//            moveMade = false;
+//        }
+//        if(newFEN) {
+//            newFEN = false;
+//            playerTurn();
+//        }
+//    }
     //    "8/8/8/8/8/8/8/8 w - - 0 1"
 //    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 //    "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 "
@@ -130,9 +127,8 @@ public class Game {
     public static void main(String[] args) {
         loadFEN(startFEN);
         initAll();
-        gui.chessBoard.updateBoard();
-        printState();
-        run();
+//        gui.chessBoard.updateBoard();
+        new UCI();
 
 
     }

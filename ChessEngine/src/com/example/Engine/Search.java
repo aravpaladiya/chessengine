@@ -6,6 +6,7 @@ import static com.example.Engine.Evaluate.evaluate;
 import static com.example.Engine.GameBoard.*;
 import static com.example.Engine.MoveGen.*;
 import static com.example.Game.*;
+import static com.example.GUI.UCI.UCI.*;
 
 
 public class Search {
@@ -22,7 +23,13 @@ public class Search {
     public static long timeAtMoveOver = 0;
     public static boolean stopSearch = false;
 
-
+    public static boolean checkForStop() {
+        if(timeAtMoveOver - System.nanoTime() < 0 || stopSearch) {
+            stopSearch = true;
+            return true;
+        }
+        return false;
+    }
 
     public static int searchPosition(int depth) {
         int score = 0;
@@ -32,23 +39,21 @@ public class Search {
         historyMoves = new int[12][64];
         long searchStartNs = System.nanoTime();
         timeAtMoveOver = searchStartNs + timeAssigned;
+
         int bestMove = 0;
         int[] prevPV = new int[maxPly];
+        searchNodes = 0;
         for(int i = 1; i <= maxDepth; i++) {
             followingPVLine = true;
-            searchNodes = 0;
-            long start = System.nanoTime();
-            long singleStart = start;
             int oldScore = score;
             score = negamax(i, -infinity, infinity);
 
             long finish = System.nanoTime();
             if(stopSearch) {
-                System.out.print("best move " + getShortMove(bestMove) + "\n");
                 stopSearch = false;
                 break;
             } else {
-                System.out.print("info score cp " + oldScore + "  depth " + i + " nodes " + searchNodes + " time " + (finish-singleStart)/1000000 + " pv ");
+                System.out.print("info score cp " + oldScore + "  depth " + i + " nodes " + searchNodes + " time " + (finish-searchStartNs)/1000000 + " pv ");
                 for (int j = 0; j < i; j++) {
                     if (prevPV[j] == 0 || ((score < 0) ? 49000 + score == j : 49000 - score == j)) {
                         break;
@@ -56,11 +61,12 @@ public class Search {
                     System.out.print(getShortMove(prevPV[j]) + " ");
                 }
                 System.out.print("\n");
-                singleStart = System.nanoTime();
             }
             prevPV = principalVariation[0];
             bestMove = principalVariation[0][0];
         }
+        System.out.print("best move " + getShortMove(bestMove) + "\n");
+
 
 
         return score;
@@ -69,9 +75,8 @@ public class Search {
 
     public static int quiescence(int alpha, int beta) {
         searchNodes++;
-        if((searchNodes & 2047) == 0) {
-            if(timeAtMoveOver - System.nanoTime() < 0) {
-                stopSearch = true;
+        if((searchNodes & 32767) == 0) {
+            if(checkForStop()) {
                 return 0;
             }
         }
@@ -232,8 +237,10 @@ public class Search {
                 ply--;
 
                 unmakeMove(searchList.moves[i].move, allMoves);
-                if(stopSearch) {
-                    return 0;
+                if((searchNodes & 32767) == 0) {
+                    if(checkForStop()) {
+                        return 0;
+                    }
                 }
                 movesSearched++;
                 if(score >= beta) {
