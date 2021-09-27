@@ -17,6 +17,8 @@ public class UCI {
     }
 
     private static void uciLoop() {
+        System.out.print("id name MLCChess\n");
+        System.out.print("id author AravP\n");
         System.out.print("uciok\n");
         ReadSTDIN read = new ReadSTDIN();
         read.start();
@@ -24,7 +26,11 @@ public class UCI {
 
 
     static void parseGo(String command) {
+        if(!stopSearch) {
+            return;
+        }
         stopSearch = false;
+
         searchPosition(maxDepth);
     }
     private static void parsePos() {

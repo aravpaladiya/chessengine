@@ -26,12 +26,19 @@ public class ReadSTDIN extends Thread{
     }
 
     public void parseCommand(String command) {
-        if(command.contains("go")) {
+        System.out.println(command);
+        if(command.equals("isready")) {
+            System.out.print("readyok\n");
+        }
+        else if(command.contains("go")) {
             parseGo(command);
-        } else if(command.equals("stop")) {
+        }
+        else if(command.equals("stop")) {
             stopSearch = true;
         } else if(command.equals("register")) {
             System.out.print("register name Arav P\n");
+        } else if(command.equals("quit")) {
+            System.exit(0);
         }
     }
 }

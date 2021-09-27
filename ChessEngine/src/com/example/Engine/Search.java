@@ -21,7 +21,7 @@ public class Search {
     public static int[] PVLength = new int[maxPly];
     public static int[][] historyMoves = new int[12][64];
     public static long timeAtMoveOver = 0;
-    public static boolean stopSearch = false;
+    public static boolean stopSearch = true;
 
     public static boolean checkForStop() {
         if(timeAtMoveOver - System.nanoTime() < 0 || stopSearch) {

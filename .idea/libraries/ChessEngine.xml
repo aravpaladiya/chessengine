@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="ChessEngine">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/ChessEngine/out/artifacts/ChessEngine_jar/ChessEngine.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
