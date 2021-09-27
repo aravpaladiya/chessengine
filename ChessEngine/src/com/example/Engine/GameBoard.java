@@ -3,7 +3,7 @@ package com.example.Engine;
 
 import static com.example.Engine.Constants.*;
 
-public abstract class GameBoard {
+public class GameBoard {
     public static long[] bitboards = new long[13];
     public static long[] occupancies = new long[] {
             0L, 0L, 0L

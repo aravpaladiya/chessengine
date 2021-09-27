@@ -36,7 +36,6 @@ public class Evaluate {
         }
         return (side==WHITE)?value:-value;
     }
-    //note to self - if I order quiescence moves differently later, use below function
 //    public static int scoreQuiescenceMove(int move) {
 //        if(decodeEnPs(move)==1) {
 //            return MVVLVA[P][P] + 10000;
