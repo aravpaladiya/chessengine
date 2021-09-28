@@ -31,87 +31,6 @@ public abstract class Constants {
 
 
 
-        CoordsToInt.put("a1", 0);
-        CoordsToInt.put("b1", 1);
-        CoordsToInt.put("c1", 2);
-        CoordsToInt.put("d1", 3);
-        CoordsToInt.put("e1", 4);
-        CoordsToInt.put("f1", 5);
-        CoordsToInt.put("g1", 6);
-        CoordsToInt.put("h1", 7);
-        CoordsToInt.put("a2", 8);
-        CoordsToInt.put("b2", 9);
-        CoordsToInt.put("c2", 10);
-        CoordsToInt.put("d2", 11);
-        CoordsToInt.put("e2", 12);
-        CoordsToInt.put("f2", 13);
-        CoordsToInt.put("g2", 14);
-        CoordsToInt.put("h2", 15);
-        CoordsToInt.put("a3", 16);
-        CoordsToInt.put("b3", 17);
-        CoordsToInt.put("c3", 18);
-        CoordsToInt.put("d3", 19);
-        CoordsToInt.put("e3", 20);
-        CoordsToInt.put("f3", 21);
-        CoordsToInt.put("g3", 22);
-        CoordsToInt.put("h3", 23);
-        CoordsToInt.put("a4", 24);
-        CoordsToInt.put("b4", 25);
-        CoordsToInt.put("c4", 26);
-        CoordsToInt.put("d4", 27);
-        CoordsToInt.put("e4", 28);
-        CoordsToInt.put("f4", 29);
-        CoordsToInt.put("g4", 30);
-        CoordsToInt.put("h4", 31);
-        CoordsToInt.put("a5", 32);
-        CoordsToInt.put("b5", 33);
-        CoordsToInt.put("c5", 34);
-        CoordsToInt.put("d5", 35);
-        CoordsToInt.put("e5", 36);
-        CoordsToInt.put("f5", 37);
-        CoordsToInt.put("g5", 38);
-        CoordsToInt.put("h5", 39);
-        CoordsToInt.put("a6", 40);
-        CoordsToInt.put("b6", 41);
-        CoordsToInt.put("c6", 42);
-        CoordsToInt.put("d6", 43);
-        CoordsToInt.put("e6", 44);
-        CoordsToInt.put("f6", 45);
-        CoordsToInt.put("g6", 46);
-        CoordsToInt.put("h6", 47);
-        CoordsToInt.put("a7", 48);
-        CoordsToInt.put("b7", 49);
-        CoordsToInt.put("c7", 50);
-        CoordsToInt.put("d7", 51);
-        CoordsToInt.put("e7", 52);
-        CoordsToInt.put("f7", 53);
-        CoordsToInt.put("g7", 54);
-        CoordsToInt.put("h7", 55);
-        CoordsToInt.put("a8", 56);
-        CoordsToInt.put("b8", 57);
-        CoordsToInt.put("c8", 58);
-        CoordsToInt.put("d8", 59);
-        CoordsToInt.put("e8", 60);
-        CoordsToInt.put("f8", 61);
-        CoordsToInt.put("g8", 62);
-        CoordsToInt.put("h8", 63);
-
-        PieceToInt.put("P", P);
-        PieceToInt.put("N", N);
-        PieceToInt.put("B", B);
-        PieceToInt.put("R", R);
-        PieceToInt.put("Q", Q);
-        PieceToInt.put("K", K);
-        PieceToInt.put("p", p);
-        PieceToInt.put("n", n);
-        PieceToInt.put("b", b);
-        PieceToInt.put("r", r);
-        PieceToInt.put("q", q);
-        PieceToInt.put("k", k);
-
-
-
-
 
 
 
@@ -579,6 +498,84 @@ public abstract class Constants {
 
     };
 
+    public static void initConsts() {
+        CoordsToInt.put("a1", 0);
+        CoordsToInt.put("b1", 1);
+        CoordsToInt.put("c1", 2);
+        CoordsToInt.put("d1", 3);
+        CoordsToInt.put("e1", 4);
+        CoordsToInt.put("f1", 5);
+        CoordsToInt.put("g1", 6);
+        CoordsToInt.put("h1", 7);
+        CoordsToInt.put("a2", 8);
+        CoordsToInt.put("b2", 9);
+        CoordsToInt.put("c2", 10);
+        CoordsToInt.put("d2", 11);
+        CoordsToInt.put("e2", 12);
+        CoordsToInt.put("f2", 13);
+        CoordsToInt.put("g2", 14);
+        CoordsToInt.put("h2", 15);
+        CoordsToInt.put("a3", 16);
+        CoordsToInt.put("b3", 17);
+        CoordsToInt.put("c3", 18);
+        CoordsToInt.put("d3", 19);
+        CoordsToInt.put("e3", 20);
+        CoordsToInt.put("f3", 21);
+        CoordsToInt.put("g3", 22);
+        CoordsToInt.put("h3", 23);
+        CoordsToInt.put("a4", 24);
+        CoordsToInt.put("b4", 25);
+        CoordsToInt.put("c4", 26);
+        CoordsToInt.put("d4", 27);
+        CoordsToInt.put("e4", 28);
+        CoordsToInt.put("f4", 29);
+        CoordsToInt.put("g4", 30);
+        CoordsToInt.put("h4", 31);
+        CoordsToInt.put("a5", 32);
+        CoordsToInt.put("b5", 33);
+        CoordsToInt.put("c5", 34);
+        CoordsToInt.put("d5", 35);
+        CoordsToInt.put("e5", 36);
+        CoordsToInt.put("f5", 37);
+        CoordsToInt.put("g5", 38);
+        CoordsToInt.put("h5", 39);
+        CoordsToInt.put("a6", 40);
+        CoordsToInt.put("b6", 41);
+        CoordsToInt.put("c6", 42);
+        CoordsToInt.put("d6", 43);
+        CoordsToInt.put("e6", 44);
+        CoordsToInt.put("f6", 45);
+        CoordsToInt.put("g6", 46);
+        CoordsToInt.put("h6", 47);
+        CoordsToInt.put("a7", 48);
+        CoordsToInt.put("b7", 49);
+        CoordsToInt.put("c7", 50);
+        CoordsToInt.put("d7", 51);
+        CoordsToInt.put("e7", 52);
+        CoordsToInt.put("f7", 53);
+        CoordsToInt.put("g7", 54);
+        CoordsToInt.put("h7", 55);
+        CoordsToInt.put("a8", 56);
+        CoordsToInt.put("b8", 57);
+        CoordsToInt.put("c8", 58);
+        CoordsToInt.put("d8", 59);
+        CoordsToInt.put("e8", 60);
+        CoordsToInt.put("f8", 61);
+        CoordsToInt.put("g8", 62);
+        CoordsToInt.put("h8", 63);
 
+        PieceToInt.put("P", P);
+        PieceToInt.put("N", N);
+        PieceToInt.put("B", B);
+        PieceToInt.put("R", R);
+        PieceToInt.put("Q", Q);
+        PieceToInt.put("K", K);
+        PieceToInt.put("p", p);
+        PieceToInt.put("n", n);
+        PieceToInt.put("b", b);
+        PieceToInt.put("r", r);
+        PieceToInt.put("q", q);
+        PieceToInt.put("k", k);
+    }
 
 }

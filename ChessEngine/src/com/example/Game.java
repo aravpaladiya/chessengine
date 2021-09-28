@@ -15,7 +15,7 @@ public class Game {
     public static int computerColor = playerColor^1;
     private static boolean gameOver = false;
     public static volatile boolean moveMade = false;
-    public static long timeAssigned = 10000000000L;
+    public static long timeAssigned = 2000000000L;
     public static int maxDepth = 64;
     public static int userTarget = 64;
     public static int userStart = 64;

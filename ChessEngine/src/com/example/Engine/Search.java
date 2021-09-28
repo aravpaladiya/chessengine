@@ -37,7 +37,7 @@ public class Search {
         PVLength = new int[MAX_PLY];
         historyMoves = new int[12][64];
         long searchStartNs = System.nanoTime();
-        timeAtMoveOver = searchStartNs + timeAssigned;
+        timeAtMoveOver = searchStartNs + timeAssigned-50000000;//subtract 50 milis so we dont overrun time in some situations
 
         int bestMove = 0;
         int[] prevPV = new int[MAX_PLY];
@@ -65,11 +65,10 @@ public class Search {
             prevPV = principalVariation[0];
             bestMove = principalVariation[0][0];
         }
-        System.out.print("best move " + getShortMove(bestMove) + "\n");
 
 
 
-        return score;
+        return bestMove;
 
     }
 

@@ -497,6 +497,7 @@ public abstract class MoveGen {
     }
 
     public static void initAll() {
+        initConsts();
         initLeaperAttacks();
         initSlidingAttacks();
     }
@@ -1072,10 +1073,7 @@ public abstract class MoveGen {
             //king
             else if((side == WHITE)?piece == K : piece == k) {
                 bitboard = bitboards[piece];
-//                printBitBoard(bitboards[k]);
-
                 startSquare = getLs1bIndex(bitboard);
-                //some problem in next line? related to startsquare
                 long attacks = kingAttacks[startSquare];
                 while(attacks != 0) {
                     long attack = attacks & (-attacks);

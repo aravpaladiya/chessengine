@@ -2,6 +2,7 @@ package com.example.GUI.UCI;
 
 import java.util.Scanner;
 
+import static com.example.Engine.GameBoard.printState;
 import static com.example.Engine.Search.stopSearch;
 
 public class ReadSTDIN extends Thread{
@@ -16,7 +17,6 @@ public class ReadSTDIN extends Thread{
             new Thread(new CommandThread(command)).start();
         }
     }
-
     public class CommandThread implements Runnable {
         String command;
 
@@ -38,6 +38,11 @@ public class ReadSTDIN extends Thread{
                     System.out.print("register name Arav P\n");
                 } else if (command.equals("quit")) {
                     System.exit(0);
+                } else if(command.equals("ucinewgame")) {
+                    UCI.previousPosCommandLen = 0;
+                    UCI.previousPosCommand = "";
+                }else if(command.equals("printstate()")) {
+                    printState();
                 }
             }
             catch (Exception e){
