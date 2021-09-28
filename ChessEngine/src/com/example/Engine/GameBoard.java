@@ -56,7 +56,7 @@ public class GameBoard {
     }
 
 
-    public static void loadFEN(String FEN) {
+    public static int loadFEN(String FEN) {
         char[] FENSplit= FEN.toCharArray();
         for(int i =P; i <= k; i++) {
             bitboards[i] = 0L;
@@ -231,22 +231,33 @@ public class GameBoard {
 
         }
         charPos+=2;
-        String halfMove = "";
+        StringBuilder halfMove = new StringBuilder();
         while(FENSplit[charPos] != ' ') {
-            halfMove = halfMove + FENSplit[charPos];
+            halfMove.append(FENSplit[charPos]);
             charPos++;
         }
-        halfMoveClock = Integer.parseInt(halfMove);
+        halfMoveClock = Integer.parseInt(halfMove.toString());
         charPos++;
-        halfMove = "";
-        while(charPos < FENSplit.length) {
-            if(FENSplit[charPos] != ' ') {
-                halfMove = halfMove + FENSplit[charPos];
-
-            }
+        halfMove = new StringBuilder();
+        while(FENSplit[charPos] != ' ' || FENSplit[charPos] != '-') {
+            halfMove.append(FENSplit[charPos]);
             charPos++;
+            if(charPos == FENSplit.length) {
+                break;
+            }
+
         }
-        fullMoveCount = Integer.parseInt(halfMove);
+        if(charPos == FENSplit.length) {
+            return charPos;
+        }
+        while(FENSplit[charPos]==' ') {
+            charPos++;
+            if(charPos == FENSplit.length) {
+                break;
+            }
+        }
+        fullMoveCount = Integer.parseInt(halfMove.toString());
+        return charPos;
 
 
     }

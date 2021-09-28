@@ -1,24 +1,125 @@
 package com.example.Engine;
 
 
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class Constants {
-    public static int randStartSeed = 1804289383;
+
+
     static {
-        a1=0; b1=1; c1=2; d1=3; e1=4; f1=5; g1=6; h1=7;
-        a2=8; b2=9; c2=10;d2=11;e2=12;f2=13;g2=14;h2=15;
-        a3=16;b3=17;c3=18;d3=19;e3=20;f3=21;g3=22;h3=23;
-        a4=24;b4=25;c4=26;d4=27;e4=28;f4=29;g4=30;h4=31;
-        a5=32;b5=33;c5=34;d5=35;e5=36;f5=37;g5=38;h5=39;
-        a6=40;b6=41;c6=42;d6=43;e6=44;f6=45;g6=46;h6=47;
-        a7=48;b7=49;c7=50;d7=51;e7=52;f7=53;g7=54;h7=55;
-        a8=56;b8=57;c8=58;d8=59;e8=60;f8=61;g8=62;h8=63;
-        noSq=64;
+
+
+        final int noPc = 12;
+        final int P = 0;
+        final int N = 1;
+        final int B = 2;
+        final int R = 3;
+        final int Q = 4;
+        final int K = 5;
+        final int p = 6;
+        final int n = 7;
+        final int b = 8;
+        final int r = 9;
+        final int q = 10;
+        final int k = 11;
+
+        Map<String, Integer> PieceToInt= new HashMap<>();
+        Map<String, Integer> CoordsToInt= new HashMap<>();
+
+
+
+
+
+        CoordsToInt.put("a1", 0);
+        CoordsToInt.put("b1", 1);
+        CoordsToInt.put("c1", 2);
+        CoordsToInt.put("d1", 3);
+        CoordsToInt.put("e1", 4);
+        CoordsToInt.put("f1", 5);
+        CoordsToInt.put("g1", 6);
+        CoordsToInt.put("h1", 7);
+        CoordsToInt.put("a2", 8);
+        CoordsToInt.put("b2", 9);
+        CoordsToInt.put("c2", 10);
+        CoordsToInt.put("d2", 11);
+        CoordsToInt.put("e2", 12);
+        CoordsToInt.put("f2", 13);
+        CoordsToInt.put("g2", 14);
+        CoordsToInt.put("h2", 15);
+        CoordsToInt.put("a3", 16);
+        CoordsToInt.put("b3", 17);
+        CoordsToInt.put("c3", 18);
+        CoordsToInt.put("d3", 19);
+        CoordsToInt.put("e3", 20);
+        CoordsToInt.put("f3", 21);
+        CoordsToInt.put("g3", 22);
+        CoordsToInt.put("h3", 23);
+        CoordsToInt.put("a4", 24);
+        CoordsToInt.put("b4", 25);
+        CoordsToInt.put("c4", 26);
+        CoordsToInt.put("d4", 27);
+        CoordsToInt.put("e4", 28);
+        CoordsToInt.put("f4", 29);
+        CoordsToInt.put("g4", 30);
+        CoordsToInt.put("h4", 31);
+        CoordsToInt.put("a5", 32);
+        CoordsToInt.put("b5", 33);
+        CoordsToInt.put("c5", 34);
+        CoordsToInt.put("d5", 35);
+        CoordsToInt.put("e5", 36);
+        CoordsToInt.put("f5", 37);
+        CoordsToInt.put("g5", 38);
+        CoordsToInt.put("h5", 39);
+        CoordsToInt.put("a6", 40);
+        CoordsToInt.put("b6", 41);
+        CoordsToInt.put("c6", 42);
+        CoordsToInt.put("d6", 43);
+        CoordsToInt.put("e6", 44);
+        CoordsToInt.put("f6", 45);
+        CoordsToInt.put("g6", 46);
+        CoordsToInt.put("h6", 47);
+        CoordsToInt.put("a7", 48);
+        CoordsToInt.put("b7", 49);
+        CoordsToInt.put("c7", 50);
+        CoordsToInt.put("d7", 51);
+        CoordsToInt.put("e7", 52);
+        CoordsToInt.put("f7", 53);
+        CoordsToInt.put("g7", 54);
+        CoordsToInt.put("h7", 55);
+        CoordsToInt.put("a8", 56);
+        CoordsToInt.put("b8", 57);
+        CoordsToInt.put("c8", 58);
+        CoordsToInt.put("d8", 59);
+        CoordsToInt.put("e8", 60);
+        CoordsToInt.put("f8", 61);
+        CoordsToInt.put("g8", 62);
+        CoordsToInt.put("h8", 63);
+
+        PieceToInt.put("P", P);
+        PieceToInt.put("N", N);
+        PieceToInt.put("B", B);
+        PieceToInt.put("R", R);
+        PieceToInt.put("Q", Q);
+        PieceToInt.put("K", K);
+        PieceToInt.put("p", p);
+        PieceToInt.put("n", n);
+        PieceToInt.put("b", b);
+        PieceToInt.put("r", r);
+        PieceToInt.put("q", q);
+        PieceToInt.put("k", k);
+
+
+
+
+
 
 
     }
+    public static int randStartSeed = 1804289383;
 
-    public static final int infinity = 50000;
+
+    public static final int INFINITY = 50000;
     public static final String startFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     public static final int checkMate = 1;
     public static final int staleMate = 2;
@@ -30,9 +131,9 @@ public abstract class Constants {
     public static final String very_hard_position = "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9 ";
     public static final int BLACK = 0;
     public static final int WHITE = 1;
-    public static final boolean bishop = true;
-    public static final boolean rook = false;
-    public static final int maxPly = 64;
+    public static final boolean BISHOP = true;
+    public static final boolean ROOK = false;
+    public static final int MAX_PLY = 64;
     //tables
     public static long[] kingAttacks = new long[64];
     public static long[][] pawnAttacks = new long[2][64];
@@ -41,16 +142,71 @@ public abstract class Constants {
     public static long[] rookAttackMasks = new long[64];
     public static long[][] bishopAttackTables = new long[64][512];
     public static long[][] rookAttackTables = new long[64][4096];
-    public static final int
-            a8, b8, c8, d8, e8, f8, g8, h8,
-            a7, b7, c7, d7, e7, f7, g7, h7,
-            a6, b6, c6, d6, e6, f6, g6, h6,
-            a5, b5, c5, d5, e5, f5, g5, h5,
-            a4, b4, c4, d4, e4, f4, g4, h4,
-            a3, b3, c3, d3, e3, f3, g3, h3,
-            a2, b2, c2, d2, e2, f2, g2, h2,
-            a1, b1, c1, d1, e1, f1, g1, h1,
-            noSq;
+    public static final int a1=0;
+    public static final int b1=1;
+    public static final int c1=2;
+    public static final int d1=3;
+    public static final int e1=4;
+    public static final int f1=5;
+    public static final int g1=6;
+    public static final int h1=7;
+    public static final int a2=8;
+    public static final int b2=9;
+    public static final int c2=10;
+    public static final int d2=11;
+    public static final int e2=12;
+    public static final int f2=13;
+    public static final int g2=14;
+    public static final int h2=15;
+    public static final int a3=16;
+    public static final int b3=17;
+    public static final int c3=18;
+    public static final int d3=19;
+    public static final int e3=20;
+    public static final int f3=21;
+    public static final int g3=22;
+    public static final int h3=23;
+    public static final int a4=24;
+    public static final int b4=25;
+    public static final int c4=26;
+    public static final int d4=27;
+    public static final int e4=28;
+    public static final int f4=29;
+    public static final int g4=30;
+    public static final int h4=31;
+    public static final int a5=32;
+    public static final int b5=33;
+    public static final int c5=34;
+    public static final int d5=35;
+    public static final int e5=36;
+    public static final int f5=37;
+    public static final int g5=38;
+    public static final int h5=39;
+    public static final int a6=40;
+    public static final int b6=41;
+    public static final int c6=42;
+    public static final int d6=43;
+    public static final int e6=44;
+    public static final int f6=45;
+    public static final int g6=46;
+    public static final int h6=47;
+    public static final int a7=48;
+    public static final int b7=49;
+    public static final int c7=50;
+    public static final int d7=51;
+    public static final int e7=52;
+    public static final int f7=53;
+    public static final int g7=54;
+    public static final int h7=55;
+    public static final int a8=56;
+    public static final int b8=57;
+    public static final int c8=58;
+    public static final int d8=59;
+    public static final int e8=60;
+    public static final int f8=61;
+    public static final int g8=62;
+    public static final int h8=63;
+    public static final int noSq=64;
 
     public static final int[] pieceScoreEvalTable = new int[] {
         100,
@@ -67,6 +223,10 @@ public abstract class Constants {
         -10000,
         0
     };
+
+    public static Map<String, Integer> PieceToInt= new HashMap<>();
+    public static Map<String, Integer> CoordsToInt= new HashMap<>();
+
 
     public static final int occBIdx = 0;
     public static final int occWIdx = 1;
@@ -85,6 +245,8 @@ public abstract class Constants {
     public static final int r = 9;
     public static final int q = 10;
     public static final int k = 11;
+
+
 
     public static final int[] blackPawnScore = new int[] {
           //A    B    C    D    E    F    G    H
@@ -416,5 +578,7 @@ public abstract class Constants {
             0x1004081002402L
 
     };
+
+
 
 }

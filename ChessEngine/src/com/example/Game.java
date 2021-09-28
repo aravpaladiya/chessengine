@@ -16,8 +16,8 @@ public class Game {
     private static boolean gameOver = false;
     public static volatile boolean moveMade = false;
     public static long timeAssigned = 10000000000L;
-    public static int maxDepth = 64;//e4 e5 nodes 32835908 depth 9 comp = black no mvvlva quisence 45-50 secs
-    public static int userTarget = 64;//e4 e5 nodes 32833274
+    public static int maxDepth = 64;
+    public static int userTarget = 64;
     public static int userStart = 64;
     public static Stack<Integer> stack = new Stack<>();
     public static int score = 0;
@@ -120,8 +120,9 @@ public class Game {
 //    }
 
     public static void main(String[] args) {
-        loadFEN(startFEN);
+        //loadFEN(startFEN);//not needed for UCI, done in position command
         initAll();
+
         new UCI();
 
 

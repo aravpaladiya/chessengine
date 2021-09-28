@@ -12,7 +12,7 @@ public class MoveList {
     }
 
     public Move getNextMove(int count) {
-        Move bestMove = new Move(0, -infinity);
+        Move bestMove = new Move(0, -INFINITY);
         int bestNum = count;
         for(int i = count; i < this.count; i++) {
             if(this.moves[i].score > bestMove.score) {

@@ -6,7 +6,6 @@ import static com.example.Engine.Evaluate.evaluate;
 import static com.example.Engine.GameBoard.*;
 import static com.example.Engine.MoveGen.*;
 import static com.example.Game.*;
-import static com.example.GUI.UCI.UCI.*;
 
 
 public class Search {
@@ -16,12 +15,12 @@ public class Search {
     public static boolean scoringPV = false;
     public static boolean followingPVLine = false;
 
-    public static int[][] killerMoves = new int[2][maxPly];
-    public static int[][] principalVariation = new int[maxPly][maxPly];
-    public static int[] PVLength = new int[maxPly];
+    public static int[][] killerMoves = new int[2][MAX_PLY];
+    public static int[][] principalVariation = new int[MAX_PLY][MAX_PLY];
+    public static int[] PVLength = new int[MAX_PLY];
     public static int[][] historyMoves = new int[12][64];
     public static long timeAtMoveOver = 0;
-    public static boolean stopSearch = true;
+    public static Boolean stopSearch = true;
 
     public static boolean checkForStop() {
         if(timeAtMoveOver - System.nanoTime() < 0 || stopSearch) {
@@ -33,20 +32,20 @@ public class Search {
 
     public static int searchPosition(int depth) {
         int score = 0;
-        killerMoves = new int[2][maxPly];
+        killerMoves = new int[2][MAX_PLY];
         principalVariation = new int[64][64];
-        PVLength = new int[maxPly];
+        PVLength = new int[MAX_PLY];
         historyMoves = new int[12][64];
         long searchStartNs = System.nanoTime();
         timeAtMoveOver = searchStartNs + timeAssigned;
 
         int bestMove = 0;
-        int[] prevPV = new int[maxPly];
+        int[] prevPV = new int[MAX_PLY];
         searchNodes = 0;
         for(int i = 1; i <= maxDepth; i++) {
             followingPVLine = true;
             int oldScore = score;
-            score = negamax(i, -infinity, infinity);
+            score = negamax(i, -INFINITY, INFINITY);
 
             long finish = System.nanoTime();
             if(stopSearch) {
@@ -189,7 +188,7 @@ public class Search {
             return quiescence(alpha, beta);
         }
 
-        if(ply > maxPly-1) {
+        if(ply > MAX_PLY -1) {
             //too deep
             return evaluate();
         }
@@ -241,7 +240,7 @@ public class Search {
                 ply--;
 
                 unmakeMove(searchList.moves[i].move, allMoves);
-                if((searchNodes & 32767) == 0) {
+                if((searchNodes & 2047) == 0) {
                     if(checkForStop()) {
                         return 0;
                     }
