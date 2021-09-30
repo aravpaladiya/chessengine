@@ -30,6 +30,7 @@ public class UCI {
         System.out.print("id name MLCChess\n");
         System.out.print("id author AravP\n");
         System.out.print("uciok\n");
+        System.out.print("option name Book type check default true\n");
         ReadSTDIN read = new ReadSTDIN();
         read.start();
     }
@@ -42,13 +43,139 @@ public class UCI {
         if(!stopSearch) {
             return;
         }
+        int commandIndex = 3;
+        char[] commandArr = command.toCharArray();
+        int depth = -1;
+        String depthStr = "";
+        int wtime = -1;
+        String wtimeStr = "";
+        int btime = -1;
+        String btimeStr = "";
+        int binc = 0;
+        String bincStr = "";
+        int winc = 0;
+        String wincStr = "";
+        int movetime = -1000;
+        String movetimeStr = "";
+        int movesToGo = 30;
+        String movesToGoStr = "";
+
+        //example command
+        //go depth 6 wtime 180000 btime 100000 winc 1000 binc 1000 movetime 1000 movestogo 40
+        if(command.regionMatches(commandIndex, "depth", 0, 5)) {
+            commandIndex+=6;
+            while(commandArr[commandIndex]!= ' ') {
+                depthStr = depthStr + commandArr[commandIndex];
+                commandIndex++;
+                if(commandIndex >= commandArr.length) {
+                    break;
+                }
+            }
+            commandIndex++;
+            depth = Integer.parseInt(depthStr);
+        }
+        if(command.regionMatches(commandIndex, "wtime", 0, 5)) {
+            commandIndex += 6;
+            while (commandArr[commandIndex] != ' ') {
+                wtimeStr = wtimeStr + commandArr[commandIndex];
+                commandIndex++;
+                if (commandIndex >= commandArr.length) {
+                    break;
+                }
+            }
+            commandIndex++;
+            wtime = Integer.parseInt(wtimeStr);
+        }
+
+        if(command.regionMatches(commandIndex, "btime", 0, 5)) {
+            commandIndex+=6;
+            while(commandArr[commandIndex]!= ' ') {
+                btimeStr = btimeStr + commandArr[commandIndex];
+                commandIndex++;
+                if(commandIndex >= commandArr.length) {
+                    break;
+                }
+            }
+            commandIndex++;
+            btime = Integer.parseInt(btimeStr);
+        }
+        if(command.regionMatches(commandIndex, "winc", 0, 4)) {
+            commandIndex+=5;
+            while(commandArr[commandIndex]!= ' ') {
+                wincStr = wincStr + commandArr[commandIndex];
+                commandIndex++;
+                if(commandIndex >= commandArr.length) {
+                    break;
+                }
+            }
+            commandIndex++;
+            winc = Integer.parseInt(wincStr);
+        }
+        if(command.regionMatches(commandIndex, "binc", 0, 4)) {
+            commandIndex+=5;
+            while(commandArr[commandIndex]!= ' ') {
+                bincStr = bincStr + commandArr[commandIndex];
+                commandIndex++;
+                if(commandIndex >= commandArr.length) {
+                    break;
+                }
+            }
+            commandIndex++;
+            binc = Integer.parseInt(bincStr);
+        }
+        if(command.regionMatches(commandIndex, "movetime", 0, 8)) {
+            commandIndex+=9;
+            while(commandArr[commandIndex]!= ' ') {
+                movetimeStr = movetimeStr + commandArr[commandIndex];
+                commandIndex++;
+                if(commandIndex >= commandArr.length) {
+                    break;
+                }
+            }
+            commandIndex++;
+            movetime = Integer.parseInt(movetimeStr);
+        }
+        if(command.regionMatches(commandIndex, "movestogo", 0, 9)) {
+            commandIndex+=10;
+            while(commandArr[commandIndex]!= ' ') {
+                movesToGoStr = movesToGoStr + commandArr[commandIndex];
+                commandIndex++;
+                if(commandIndex >= commandArr.length) {
+                    break;
+                }
+            }
+            movesToGo = Integer.parseInt(movesToGoStr);
+        }
+        if(movetime != -1000) {
+            timeAssigned = movetime;
+        } else {
+            if(side==WHITE) {
+                movetime = wtime/movesToGo;
+                if(wtime > (movetime+winc)) {
+                    movetime += winc;
+                } else {
+                    movetime = wtime;
+                }
+            } else {
+                movetime = btime/movesToGo;
+                if(btime > movetime+binc) {
+                    movetime += binc;
+                } else {
+                    movetime = btime;
+                }
+            }
+
+        }
+        movetime-=25;
+
+        timeAssigned = movetime* 1000000L;//change to 1/30 of available time
         while (!positionSetUp) {
             Thread.onSpinWait();
         }
 
         stopSearch = false;
 
-        int bestMove = searchPosition(maxDepth);
+        int bestMove = searchPosition(depth==-1?maxDepth:depth);
         stopSearch = true;
         positionSetUp = false;
         System.out.print("bestmove " + getShortMove(bestMove) + "\n");
@@ -77,7 +204,6 @@ public class UCI {
             i = moveStartIndex;
 
             while (commandArr[moveStartIndex] != ' ') {
-                System.out.println(commandArr[moveStartIndex]);
                 moveStartIndex++;
                 if(moveStartIndex==commandArr.length) {
                     break;
@@ -86,7 +212,6 @@ public class UCI {
             moveStartIndex++;
             String moveStr = command.substring(i, moveStartIndex-1);
             makeMoveFromString(moveStr);
-            System.out.println(side);
         }
         previousPosCommandLen = moveStartIndex;
         previousPosCommand = command;
