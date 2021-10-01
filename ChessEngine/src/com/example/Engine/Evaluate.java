@@ -10,6 +10,8 @@ public class Evaluate {
     private static int endgameValue;
 
     private static void eval() {
+        openingValue = 0;
+        endgameValue = 0;
         for(int piece = P; piece <= k; piece++) {
             long bitboard = bitboards[piece];
 
@@ -27,7 +29,7 @@ public class Evaluate {
                     case r: openingValue -= blackRookScore[square]; endgameValue -= blackRookScore[square]; break;
                     case R: openingValue += whiteRookScore[square]; endgameValue += whiteRookScore[square]; break;
                     case k: openingValue -= blackKingScoreO[square]; endgameValue -= blackKingScoreE[square]; break;
-                    case K: openingValue -= whiteKingScoreO[square]; endgameValue += whiteKingScoreE[square]; break;
+                    case K: openingValue += whiteKingScoreO[square]; endgameValue += whiteKingScoreE[square]; break;
                 }
 
                 bitboard = pop_bit(bitboard, square);
@@ -37,7 +39,7 @@ public class Evaluate {
 
 
     public static int evaluate() {
-        int value = 0;
+        int value;
 
         int pawnPhase = 0;
         int knightPhase = 1;
@@ -58,10 +60,9 @@ public class Evaluate {
         phase -= count_bit(bitboards[r])*rookPhase;
         phase -= count_bit(bitboards[q])*queenPhase;
 
-
         phase = (phase * 256 + (totalPhase / 2)) / totalPhase;
-        eval();
 
+        eval();
         value = ((openingValue * (256 - phase)) + (endgameValue * phase))/256;
         return (side==WHITE)?value:-value;
     }

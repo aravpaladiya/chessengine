@@ -27,6 +27,12 @@ public class UCI {
     }
 
     private void uciLoop() {
+        while(true) {
+            String uci = scanner.nextLine();
+            if (uci.equals("uci")) {
+                break;
+            }
+        }
         System.out.print("id name MLCChess\n");
         System.out.print("id author AravP\n");
         System.out.print("uciok\n");
