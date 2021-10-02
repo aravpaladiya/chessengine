@@ -438,6 +438,59 @@ public abstract class MoveGen {
         return result;
     }
 
+
+
+    //zobrist hashing
+
+    //init tables
+    public static long[][] zobristPieceKeys = new long[12][64];
+
+    public static long[] zobristEnPsKeys = new long[64];
+
+    public static long[] zobristCastleKeys = new long[16];
+
+    public static long zobristSideKey;
+
+    private static void initHashKeys() {
+        for(int i = P; i <= k; i++) {
+            for(int j = 0; j < 64; j++) {
+                zobristPieceKeys[i][j] = genRandom64Bit();
+            }
+        }
+        for(int i = 0; i < 64; i++) {
+            zobristEnPsKeys[i] = genRandom64Bit();
+        }
+        for(int i = 0; i < 16; i++) {
+            zobristCastleKeys[i] = genRandom64Bit();
+        }
+        zobristSideKey = genRandom64Bit();
+    }
+
+    public static long generateHashKey() {
+        long hashKey = 0L;
+        for(int i = P; i <= k; i++) {
+            long bitboard = bitboards[i];
+            while(bitboard != 0) {
+                int square = getLs1bIndex(bitboard);
+
+                hashKey ^= zobristPieceKeys[i][square];
+
+                bitboard = pop_bit(bitboard, square);
+            }
+        }
+        hashKey ^= zobristCastleKeys[castling];
+        if(enPs != NO_SQ) {
+            hashKey ^= zobristEnPsKeys[enPs];
+        }
+        if(side==BLACK) {
+            hashKey ^= zobristSideKey;
+        }
+        return hashKey;
+    }
+
+
+
+
     //check if square is attacked by a given side
 
     public static boolean isSquareAttacked(int sq, int side) {
@@ -500,11 +553,13 @@ public abstract class MoveGen {
         initConsts();
         initLeaperAttacks();
         initSlidingAttacks();
+        randStartSeed = 1804289383;
+        initHashKeys();
     }
 
 
 
-    //MOVE GENERATION
+    //move generation
 
 
 
@@ -587,11 +642,11 @@ public abstract class MoveGen {
         list.count++;
     }
     public static void printShortMove(int move) {
-        System.out.println(squareToCoords[decodeFrom(move)] + squareToCoords[decodeTo(move)] + ((decodePromPiece(move)!=noPc)?intToPiece[decodePromPiece(move)]:""));
+        System.out.println(squareToCoords[decodeFrom(move)] + squareToCoords[decodeTo(move)] + ((decodePromPiece(move)!= NO_PC)?intToPiece[decodePromPiece(move)]:""));
     }
 
     public static String getShortMove(int move) {
-        return squareToCoords[decodeFrom(move)] + squareToCoords[decodeTo(move)] + ((decodePromPiece(move)!=noPc)?intToPiece[decodePromPiece(move)]:"");
+        return squareToCoords[decodeFrom(move)] + squareToCoords[decodeTo(move)] + ((decodePromPiece(move)!= NO_PC)?intToPiece[decodePromPiece(move)]:"");
     }
     public static void printMove(int move) {
         System.out.println("piece     |  from      |  to        |  promotion |  capture   |  dbl push  |  en pass   |  castle");
@@ -656,20 +711,20 @@ public abstract class MoveGen {
                             }
                             //single push
                             else {
-                                addMove(encodeMove(startSquare, targetSquare, P, noPc, 0, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, targetSquare, P, NO_PC, 0, 0, 0, 0), moveList1);
                                 //dbl push
                                 if(startSquare >= a2 && startSquare <= h2 && ((1L<< (startSquare + 8)) & occupancies[occBothIdx]) == 0 && ((1L<< (startSquare + 16)) & occupancies[occBothIdx]) == 0) {
                                     targetSquare +=8;
-                                    addMove(encodeMove(startSquare, targetSquare, P, noPc, 0, 1, 0, 0), moveList1);
+                                    addMove(encodeMove(startSquare, targetSquare, P, NO_PC, 0, 1, 0, 0), moveList1);
                                 }
                             }
                         }
                         //pawn attacks
                         long attacks = pawnAttacks[WHITE][startSquare] & occupancies[BLACK];
                         //enps
-                        if(enPs != noSq) {
+                        if(enPs != NO_SQ) {
                             if((pawnAttacks[1][startSquare] & (1L << enPs)) != 0) {
-                                addMove(encodeMove(startSquare, enPs, P, noPc, 1, 0, 1, 0), moveList1);
+                                addMove(encodeMove(startSquare, enPs, P, NO_PC, 1, 0, 1, 0), moveList1);
 
                             }
                         }
@@ -684,7 +739,7 @@ public abstract class MoveGen {
 
                             } else {
                                 //normal attack
-                                addMove(encodeMove(startSquare, targetSquare, P, noPc, 1, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, targetSquare, P, NO_PC, 1, 0, 0, 0), moveList1);
 
                             }
 
@@ -703,12 +758,12 @@ public abstract class MoveGen {
                     if((castling & KsWCas) !=0) {
                         //can castle ks
                         if(get_bit(occupancies[occBothIdx], f1) ==0 && get_bit(occupancies[occBothIdx], g1) ==0 && !isSquareAttacked(e1, BLACK) && !isSquareAttacked(f1, BLACK)) {
-                            addMove(encodeMove(e1, g1, K, noPc, 0, 0, 0, 1), moveList1);
+                            addMove(encodeMove(e1, g1, K, NO_PC, 0, 0, 0, 1), moveList1);
                         }
                     }
                     if((castling & QsWCas) != 0) {
                         if(get_bit(occupancies[occBothIdx], d1) ==0 && get_bit(occupancies[occBothIdx], c1) ==0 && get_bit(occupancies[occBothIdx], b1) ==0 && !isSquareAttacked(e1, BLACK) && !isSquareAttacked(d1, BLACK)) {
-                            addMove(encodeMove(e1, c1, K, noPc, 0, 0, 0, 1), moveList1);
+                            addMove(encodeMove(e1, c1, K, NO_PC, 0, 0, 0, 1), moveList1);
                         }
                     }
                 }
@@ -733,12 +788,12 @@ public abstract class MoveGen {
                             }
                             //single push
                             else {
-                                addMove(encodeMove(startSquare, targetSquare, p, noPc, 0, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, targetSquare, p, NO_PC, 0, 0, 0, 0), moveList1);
 
                                 //dbl push
                                 if(startSquare >= a7 && startSquare <= h7 && ((1L<< (startSquare - 8)) & occupancies[occBothIdx]) == 0 && ((1L<< (startSquare - 16)) & occupancies[occBothIdx]) == 0) {
                                     targetSquare -=8;
-                                    addMove(encodeMove(startSquare, targetSquare, p, noPc, 0, 1, 0, 0), moveList1);
+                                    addMove(encodeMove(startSquare, targetSquare, p, NO_PC, 0, 1, 0, 0), moveList1);
 
                                 }
                             }
@@ -746,9 +801,9 @@ public abstract class MoveGen {
                         //pawn attacks
                         long attacks = pawnAttacks[BLACK][startSquare] & occupancies[WHITE];
                         //enps
-                        if(enPs != noSq) {
+                        if(enPs != NO_SQ) {
                             if((pawnAttacks[0][startSquare] & (1L << enPs)) != 0) {
-                                addMove(encodeMove(startSquare, enPs, p, noPc, 1, 0, 1, 0), moveList1);
+                                addMove(encodeMove(startSquare, enPs, p, NO_PC, 1, 0, 1, 0), moveList1);
 
                             }
                         }
@@ -763,7 +818,7 @@ public abstract class MoveGen {
 
                             } else {
                                 //normal attack
-                                addMove(encodeMove(startSquare, targetSquare, p, noPc, 1, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, targetSquare, p, NO_PC, 1, 0, 0, 0), moveList1);
 
 
                             }
@@ -783,13 +838,13 @@ public abstract class MoveGen {
                     if((castling & KsBCas) !=0) {
                         //can castle ks
                         if(get_bit(occupancies[occBothIdx], f8) ==0 && get_bit(occupancies[occBothIdx], g8) ==0 && !isSquareAttacked(e8, WHITE) && !isSquareAttacked(f8, WHITE)) {
-                            addMove(encodeMove(e8, g8, k, noPc, 0, 0, 0, 1), moveList1);
+                            addMove(encodeMove(e8, g8, k, NO_PC, 0, 0, 0, 1), moveList1);
 
                         }
                     }
                     if((castling & QsBCas) != 0) {
                         if(get_bit(occupancies[occBothIdx], d8) ==0 && get_bit(occupancies[occBothIdx], c8) ==0 && get_bit(occupancies[occBothIdx], b8) ==0 && !isSquareAttacked(e8, WHITE) && !isSquareAttacked(d8, WHITE)) {
-                            addMove(encodeMove(e8, c8, k, noPc, 0, 0, 0, 1), moveList1);
+                            addMove(encodeMove(e8, c8, k, NO_PC, 0, 0, 0, 1), moveList1);
                         }
                     }
                 }
@@ -805,11 +860,11 @@ public abstract class MoveGen {
                     while(knightAttack != 0) {
                         targetSquare = getLs1bIndex(knightAttack);
                         if(((1L << targetSquare) & ((piece == N)? occupancies[BLACK] : occupancies[WHITE])) != 0) {
-                            addMove(encodeMove(startSquare, targetSquare, piece, noPc, 1, 0, 0, 0), moveList1);
+                            addMove(encodeMove(startSquare, targetSquare, piece, NO_PC, 1, 0, 0, 0), moveList1);
 
                         } else {
                             //quiet
-                            addMove(encodeMove(startSquare, targetSquare, piece, noPc, 0, 0, 0, 0), moveList1);
+                            addMove(encodeMove(startSquare, targetSquare, piece, NO_PC, 0, 0, 0, 0), moveList1);
                         }
                         knightAttack = pop_bit(knightAttack, targetSquare);
                     }
@@ -827,10 +882,10 @@ public abstract class MoveGen {
                         int attack = getLs1bIndex(attacks);
                         if(((1L << attack) & ((side==WHITE)?occupancies[occWIdx] : occupancies[occBIdx])) == 0) {
                             if(((1L << attack) & ((side==WHITE)?occupancies[occBIdx] : occupancies[occWIdx])) != 0) {
-                                addMove(encodeMove(startSquare, attack, piece, noPc, 1, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, attack, piece, NO_PC, 1, 0, 0, 0), moveList1);
 
                             } else {
-                                addMove(encodeMove(startSquare, attack, piece, noPc, 0, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, attack, piece, NO_PC, 0, 0, 0, 0), moveList1);
 
                             }
                         }
@@ -850,9 +905,9 @@ public abstract class MoveGen {
                         int attack = getLs1bIndex(attacks);
                         if(((1L << attack) & ((side==WHITE)?occupancies[occWIdx] : occupancies[occBIdx])) == 0) {
                             if(((1L << attack) & ((side==WHITE)?occupancies[occBIdx] : occupancies[occWIdx])) != 0) {
-                                addMove(encodeMove(startSquare, attack, piece, noPc, 1, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, attack, piece, NO_PC, 1, 0, 0, 0), moveList1);
                             } else {
-                                addMove(encodeMove(startSquare, attack, piece, noPc, 0, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, attack, piece, NO_PC, 0, 0, 0, 0), moveList1);
                             }
                         }
                         attacks = pop_bit(attacks, attack);
@@ -871,10 +926,10 @@ public abstract class MoveGen {
                         int attack = getLs1bIndex(attacks);
                         if(((1L << attack) & ((side==WHITE)?occupancies[occWIdx] : occupancies[occBIdx])) == 0) {
                             if(((1L << attack) & ((side==WHITE)?occupancies[occBIdx] : occupancies[occWIdx])) != 0) {
-                                addMove(encodeMove(startSquare, attack, piece, noPc, 1, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, attack, piece, NO_PC, 1, 0, 0, 0), moveList1);
 
                             } else {
-                                addMove(encodeMove(startSquare, attack, piece, noPc, 0, 0, 0, 0), moveList1);
+                                addMove(encodeMove(startSquare, attack, piece, NO_PC, 0, 0, 0, 0), moveList1);
                             }
                         }
                         attacks = pop_bit(attacks, attack);
@@ -894,10 +949,10 @@ public abstract class MoveGen {
                 while(attacks !=0) {
                     int attack = getLs1bIndex(attacks);
                     if(((1L << attack) & ((side==WHITE)?occupancies[occBIdx] : occupancies[occWIdx])) != 0) {
-                        addMove(encodeMove(startSquare, attack, piece, noPc, 1, 0, 0, 0), moveList1);
+                        addMove(encodeMove(startSquare, attack, piece, NO_PC, 1, 0, 0, 0), moveList1);
 
                     } else {
-                        addMove(encodeMove(startSquare, attack, piece, noPc, 0, 0, 0, 0), moveList1);
+                        addMove(encodeMove(startSquare, attack, piece, NO_PC, 0, 0, 0, 0), moveList1);
 
                     }
 
@@ -927,9 +982,9 @@ public abstract class MoveGen {
                         //pawn attacks
                         long attacks = pawnAttacks[WHITE][startSquare] & occupancies[BLACK];
                         //enps
-                        if(enPs != noSq) {
+                        if(enPs != NO_SQ) {
                             if((pawnAttacks[1][startSquare] & (1L << enPs)) != 0) {
-                                addCapMove(encodeMove(startSquare, enPs, P, noPc, 1, 0, 1, 0), moveList1);
+                                addCapMove(encodeMove(startSquare, enPs, P, NO_PC, 1, 0, 1, 0), moveList1);
 
                             }
                         }
@@ -944,7 +999,7 @@ public abstract class MoveGen {
 
                             } else {
                                 //normal attack
-                                addCapMove(encodeMove(startSquare, targetSquare, P, noPc, 1, 0, 0, 0), moveList1);
+                                addCapMove(encodeMove(startSquare, targetSquare, P, NO_PC, 1, 0, 0, 0), moveList1);
 
                             }
 
@@ -966,9 +1021,9 @@ public abstract class MoveGen {
                         //pawn attacks
                         long attacks = pawnAttacks[BLACK][startSquare] & occupancies[WHITE];
                         //enps
-                        if(enPs != noSq) {
+                        if(enPs != NO_SQ) {
                             if((pawnAttacks[0][startSquare] & (1L << enPs)) != 0) {
-                                addCapMove(encodeMove(startSquare, enPs, p, noPc, 1, 0, 1, 0), moveList1);
+                                addCapMove(encodeMove(startSquare, enPs, p, NO_PC, 1, 0, 1, 0), moveList1);
 
                             }
                         }
@@ -983,7 +1038,7 @@ public abstract class MoveGen {
 
                             } else {
                                 //normal attack
-                                addCapMove(encodeMove(startSquare, targetSquare, p, noPc, 1, 0, 0, 0), moveList1);
+                                addCapMove(encodeMove(startSquare, targetSquare, p, NO_PC, 1, 0, 0, 0), moveList1);
 
 
                             }
@@ -1008,7 +1063,7 @@ public abstract class MoveGen {
                         long attack = attacks & (-attacks);
                         int nu = Long.numberOfTrailingZeros(attack);
                         if((attack & ((side==WHITE)?occupancies[occBIdx] : occupancies[occWIdx])) != 0) {
-                            addCapMove(encodeMove(startSquare, nu, piece, noPc, 1, 0, 0, 0), moveList1);
+                            addCapMove(encodeMove(startSquare, nu, piece, NO_PC, 1, 0, 0, 0), moveList1);
                         }
                         attacks = pop_bit(attacks, nu);
                     }
@@ -1026,7 +1081,7 @@ public abstract class MoveGen {
                         long attack = attacks & (-attacks);
                         int nu = Long.numberOfTrailingZeros(attack);
                         if((attack & ((side==WHITE)?occupancies[occBIdx] : occupancies[occWIdx])) != 0) {
-                            addCapMove(encodeMove(startSquare, nu, piece, noPc, 1, 0, 0, 0), moveList1);
+                            addCapMove(encodeMove(startSquare, nu, piece, NO_PC, 1, 0, 0, 0), moveList1);
                         }
                         attacks = pop_bit(attacks, nu);
                     }
@@ -1044,7 +1099,7 @@ public abstract class MoveGen {
                         long attack = attacks & (-attacks);
                         int nu = Long.numberOfTrailingZeros(attack);
                         if((attack & ((side==WHITE)?occupancies[occBIdx] : occupancies[occWIdx])) != 0) {
-                            addCapMove(encodeMove(startSquare, nu, piece, noPc, 1, 0, 0, 0), moveList1);
+                            addCapMove(encodeMove(startSquare, nu, piece, NO_PC, 1, 0, 0, 0), moveList1);
                         }
                         attacks = pop_bit(attacks, nu);
                     }
@@ -1062,7 +1117,7 @@ public abstract class MoveGen {
                         long attack = attacks & (-attacks);
                         int nu = Long.numberOfTrailingZeros(attack);
                         if((attack & ((side==WHITE)?occupancies[occBIdx] : occupancies[occWIdx])) != 0) {
-                            addCapMove(encodeMove(startSquare, nu, piece, noPc, 1, 0, 0, 0), moveList1);
+                            addCapMove(encodeMove(startSquare, nu, piece, NO_PC, 1, 0, 0, 0), moveList1);
                         }
                         attacks = pop_bit(attacks, nu);
                     }
@@ -1079,7 +1134,7 @@ public abstract class MoveGen {
                     long attack = attacks & (-attacks);
                     int nu = Long.numberOfTrailingZeros(attack);
                     if((attack & ((side==WHITE)?occupancies[occBIdx] : occupancies[occWIdx])) != 0) {
-                        addCapMove(encodeMove(startSquare, nu, piece, noPc, 1, 0, 0, 0), moveList1);
+                        addCapMove(encodeMove(startSquare, nu, piece, NO_PC, 1, 0, 0, 0), moveList1);
                     }
                     attacks = pop_bit(attacks, nu);
                 }
@@ -1095,11 +1150,10 @@ public abstract class MoveGen {
 
 
     //MAKE MOVE
-    public static int allMoves = 0;
-    public static int capMoves = 1;
+
 
     public static boolean makeMove(int move, int flag) {
-        if(flag == allMoves) {
+        if(flag == ALL_MOVES) {
             //make move
             int stackItem = 0;
 
@@ -1116,7 +1170,10 @@ public abstract class MoveGen {
 //            if(piece == 15) {
 //            }
             bitboards[piece] = pop_bit(bitboards[piece], startSquare);
+            hashKey ^= zobristPieceKeys[piece][startSquare];
             bitboards[piece] = set_bit(bitboards[piece], targetSquare);
+            hashKey ^= zobristPieceKeys[piece][targetSquare];
+
 
             if(capture == 1) {
                 int pawnForSide;
@@ -1134,20 +1191,27 @@ public abstract class MoveGen {
                         if (get_bit(bitboards[i], targetSquare) != 0) {
                             stackItem = i;
                             bitboards[i] = pop_bit(bitboards[i], targetSquare);
+                            hashKey ^= zobristPieceKeys[i][targetSquare];
                             break;
                         }
                     }
                 } else {
                     if(side == WHITE) {
                         bitboards[p] = pop_bit(bitboards[p], targetSquare-8);
+                        hashKey ^= zobristPieceKeys[p][targetSquare-8];
                     } else {
                         bitboards[P] = pop_bit(bitboards[P], targetSquare+8);
+                        hashKey ^= zobristPieceKeys[P][targetSquare+8];
                     }
                 }
             }
             stackItem |= (castling << 4);
             stackItem |= (enPs << 8);
-            enPs = noSq;
+            if(enPs!= NO_SQ) {
+                hashKey ^= zobristEnPsKeys[enPs];
+                enPs = NO_SQ;
+            }
+
 //            if(piece == K) {
 //                castling &= 0b0011;
 //            } else if(piece == k) {
@@ -1165,46 +1229,63 @@ public abstract class MoveGen {
 //                    castling &= 0b1110;
 //                }
 //            }
-
+            hashKey ^= zobristCastleKeys[castling];
             castling &= castleRights[startSquare];
             castling &= castleRights[targetSquare];
+            hashKey ^= zobristCastleKeys[castling];
 
 
             if(dblPush == 1) {
                 if(side == WHITE) {
                     enPs = targetSquare -8;
+                    hashKey ^= zobristEnPsKeys[enPs];
                 } else {
                     enPs = targetSquare +8;
+                    hashKey ^= zobristEnPsKeys[enPs];
                 }
             }
-            if(promPiece !=noPc) {
+            if(promPiece != NO_PC) {
                 if(side == WHITE) {
                     bitboards[P] = pop_bit(bitboards[P], targetSquare);
+                    hashKey ^= zobristPieceKeys[P][targetSquare];
                 } else {
                     bitboards[p] = pop_bit(bitboards[p], targetSquare);
+                    hashKey ^= zobristPieceKeys[p][targetSquare];
+
                 }
                 bitboards[promPiece] = set_bit(bitboards[promPiece], targetSquare);
+                hashKey ^= zobristPieceKeys[promPiece][targetSquare];
+
 
             }
             if(castle ==1) {
                 if(targetSquare == g1) {
                     bitboards[R] = pop_bit(bitboards[R], h1);
                     bitboards[R] = set_bit(bitboards[R], f1);
+                    hashKey ^= zobristPieceKeys[R][h1];
+                    hashKey ^= zobristPieceKeys[R][f1];
+
                 }
 
                 else if(targetSquare == c1) {
                     bitboards[R] = pop_bit(bitboards[R], a1);
                     bitboards[R] = set_bit(bitboards[R], d1);
+                    hashKey ^= zobristPieceKeys[R][d1];
+                    hashKey ^= zobristPieceKeys[R][a1];
                 }
 
                 else if(targetSquare == g8) {
                     bitboards[r] = pop_bit(bitboards[r], h8);
                     bitboards[r] = set_bit(bitboards[r], f8);
+                    hashKey ^= zobristPieceKeys[r][h8];
+                    hashKey ^= zobristPieceKeys[r][f8];
                 }
 
                 else {//c8
                     bitboards[r] = pop_bit(bitboards[r], a8);
                     bitboards[r] = set_bit(bitboards[r], d8);
+                    hashKey ^= zobristPieceKeys[r][a8];
+                    hashKey ^= zobristPieceKeys[r][d8];
                 }
 
 
@@ -1223,9 +1304,16 @@ public abstract class MoveGen {
             occupancies[occBothIdx] = occupancies[WHITE] | occupancies[BLACK];
 
             side ^=1;
-            stack.push(stackItem);
+            hashKey ^= zobristSideKey;
+
+            makeMoveStack.push(stackItem);
+
+
+
+
+
             if(isSquareAttacked(getLs1bIndex(((side==WHITE)?bitboards[k] : bitboards[K])), side)) {
-                unmakeMove(move, allMoves);
+                unmakeMove(move, ALL_MOVES);
                 return false;
             } else {
                 return true;
@@ -1234,9 +1322,9 @@ public abstract class MoveGen {
 
         }
 
-        else if(flag == capMoves) {
+        else if(flag == CAP_MOVES) {
             if(decodeCap(move)==1) {
-                return makeMove(move, allMoves);
+                return makeMove(move, ALL_MOVES);
             } else {
                 return false;
             }
@@ -1253,8 +1341,8 @@ public abstract class MoveGen {
     }
     // Unmake move
 
-    public static boolean unmakeMove(int move, int flag) {
-        if(flag == allMoves) {
+    public static void unmakeMove(int move, int flag) {
+        if(flag == ALL_MOVES) {
             /*
                 stackItem encode:
                 cap Piece = 0000 0000 0000 1111;
@@ -1262,8 +1350,8 @@ public abstract class MoveGen {
                 enps sq   = 0111 1111 0000 0000;
 
              */
-            int stackItem = stack.peek();
-            stack.pop();
+            int stackItem = makeMoveStack.peek();
+            makeMoveStack.pop();
 
             int startSquare = decodeFrom(move);//
             int targetSquare = decodeTo(move);//
@@ -1274,10 +1362,18 @@ public abstract class MoveGen {
             int enPass = decodeEnPs(move);
 
             side ^= 1;
+            hashKey ^= zobristSideKey;
             //update piece bitboards/
             bitboards[piece] = pop_bit(bitboards[piece], targetSquare);
+            if(promPiece != NO_PC) {
+                hashKey ^= zobristPieceKeys[promPiece][targetSquare];
+            } else {
+                hashKey ^= zobristPieceKeys[piece][targetSquare];
+
+            }
             bitboards[piece] = set_bit(bitboards[piece], startSquare);
-            //needs stack//done
+            hashKey ^= zobristPieceKeys[piece][startSquare];
+
             if(capture == 1) {
                 //if capture
                 int capPiece = stackItem & 0b1111;
@@ -1285,20 +1381,36 @@ public abstract class MoveGen {
 //                int kingForSide = (side == WHITE)?k : K;
                 if(enPass == 0) {
                     bitboards[capPiece] = set_bit(bitboards[capPiece], targetSquare);
+                    hashKey ^= zobristPieceKeys[capPiece][targetSquare];
                 } else {
                     if(side == WHITE) {
                         bitboards[p] = set_bit(bitboards[p], targetSquare-8);
+                        hashKey ^= zobristPieceKeys[p][targetSquare-8];
+
                     } else {
                         bitboards[P] = set_bit(bitboards[P], targetSquare+8);
+                        hashKey ^= zobristPieceKeys[P][targetSquare+8];
                     }
                 }
             }
+
+            if(enPs != NO_SQ) {
+                hashKey ^= zobristEnPsKeys[enPs];
+            }
             enPs = (stackItem & 0b111111100000000) >>> 8;
+            if(enPs != NO_SQ) {
+                hashKey ^= zobristEnPsKeys[enPs];
+            }
+
+
+            hashKey ^= zobristCastleKeys[castling];
             castling = (stackItem & 0b11110000) >>> 4;
+            hashKey ^= zobristCastleKeys[castling];
+
 
 
             //
-            if(promPiece !=0) {
+            if(promPiece != NO_PC) {
                 bitboards[promPiece] = pop_bit(bitboards[promPiece], targetSquare);
             }
             //
@@ -1306,21 +1418,28 @@ public abstract class MoveGen {
                 if(targetSquare == g1) {
                     bitboards[R] = set_bit(bitboards[R], h1);
                     bitboards[R] = pop_bit(bitboards[R], f1);
+                    hashKey ^= zobristPieceKeys[R][h1];
+                    hashKey ^= zobristPieceKeys[R][f1];
                 }
 
                 else if(targetSquare == c1) {
                     bitboards[R] = set_bit(bitboards[R], a1);
                     bitboards[R] = pop_bit(bitboards[R], d1);
+                    hashKey ^= zobristPieceKeys[R][a1];
+                    hashKey ^= zobristPieceKeys[R][d1];
                 }
 
                 else if(targetSquare == g8) {
                     bitboards[r] = set_bit(bitboards[r], h8);
                     bitboards[r] = pop_bit(bitboards[r], f8);
+                    hashKey ^= zobristPieceKeys[r][h8];
+                    hashKey ^= zobristPieceKeys[r][f8];
                 }
-
                 else {//c8
                     bitboards[r] = set_bit(bitboards[r], a8);
                     bitboards[r] = pop_bit(bitboards[r], d8);
+                    hashKey ^= zobristPieceKeys[r][a8];
+                    hashKey ^= zobristPieceKeys[r][d8];
                 }
 
 
@@ -1356,10 +1475,8 @@ public abstract class MoveGen {
         else {
             //not a move?
 
-            return false;
         }
 
-        return true;
     }
 
     public static int isInMate(int side) {
@@ -1369,15 +1486,15 @@ public abstract class MoveGen {
 
 
         for(int i = 0; i < list.count; i++) {
-            if(makeMove(list.moves[i].move, allMoves)) {
-                unmakeMove(list.moves[i].move, allMoves);
-                return noMate;
+            if(makeMove(list.moves[i].move, ALL_MOVES)) {
+                unmakeMove(list.moves[i].move, ALL_MOVES);
+                return NO_MATE;
             }
         }
         if(isSquareAttacked(king, side^1)) {
-            return checkMate;
+            return CHECK_MATE;
         } else {
-            return staleMate;
+            return STALE_MATE;
         }
     }
 
@@ -1395,14 +1512,19 @@ public abstract class MoveGen {
         MoveList moveList = new MoveList();
         generateMoves(moveList);
         for (int i = 0; i < moveList.count; i++) {
-            if(makeMove(moveList.moves[i].move, allMoves)) {
+            if(makeMove(moveList.moves[i].move, ALL_MOVES)) {
                 findNodesForPosPerft(depth-1);
-                unmakeMove(moveList.moves[i].move, allMoves);
+                unmakeMove(moveList.moves[i].move, ALL_MOVES);
+//                long hashWeShouldGet = generateHashKey();
+//                if(hashKey != hashWeShouldGet) {
+//                    System.out.println(Long.toUnsignedString(hashWeShouldGet, 16) + " " + Long.toUnsignedString(hashKey, 16));
+//                }
             }
 
 
 
         }
+
     }
     private static long perftNodes;
 

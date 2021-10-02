@@ -31,6 +31,8 @@ public class UCI {
             String uci = scanner.nextLine();
             if (uci.equals("uci")) {
                 break;
+            } else if(uci.equals("debugengine")) {
+                debug();
             }
         }
         System.out.print("id name MLCChess\n");
@@ -47,6 +49,17 @@ public class UCI {
      */
     static void parseGo(String command) {
         if(!stopSearch) {
+            return;
+        }
+        if(command.equals("go infinite")) {
+            timeAssigned = Long.MAX_VALUE;
+            stopSearch = false;
+
+            int bestMove = searchPosition(maxDepth);
+            stopSearch = true;
+            positionSetUp = false;
+            System.out.print("bestmove " + getShortMove(bestMove) + "\n");
+
             return;
         }
         int commandIndex = 3;
@@ -174,7 +187,7 @@ public class UCI {
         }
         movetime-=25;
 
-        timeAssigned = movetime* 1000000L;//change to 1/30 of available time
+        timeAssigned = movetime* 1000000L;//change to 1/30 of available time later
         while (!positionSetUp) {
             Thread.onSpinWait();
         }
@@ -226,7 +239,7 @@ public class UCI {
     }
 
     static void makeMoveFromString(String move) {
-        int promPiece = noPc;
+        int promPiece = NO_PC;
         if(move.length() == 5) {
             promPiece = PieceToInt.get(Character.toString(move.charAt(4)));
             if((promPiece==q || promPiece==r || promPiece==b || promPiece==n) && GameBoard.side==WHITE) {
@@ -246,7 +259,7 @@ public class UCI {
         int targetSquare = CoordsToInt.get(move.substring(2, 4));
         int capture = 0;
         int enps = 0;
-        int piece = noPc;
+        int piece = NO_PC;
         int dblpush = 0;
         int castle = 0;
 
@@ -289,7 +302,7 @@ public class UCI {
 
 
 
-        makeMove(encodeMove(startSquare, targetSquare, piece, promPiece, capture, dblpush, enps, castle), allMoves);
+        makeMove(encodeMove(startSquare, targetSquare, piece, promPiece, capture, dblpush, enps, castle), ALL_MOVES);
     }
 
 

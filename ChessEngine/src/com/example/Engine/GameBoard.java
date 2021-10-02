@@ -1,6 +1,8 @@
 package com.example.Engine;
 
 
+import com.example.Game;
+
 import static com.example.Engine.Constants.*;
 
 public class GameBoard {
@@ -11,7 +13,7 @@ public class GameBoard {
 
 
     public static int castling = 0b0;
-    public static int enPs = noSq;
+    public static int enPs = NO_SQ;
     public static int side = WHITE;
     public static int halfMoveClock = 0;
     public static int fullMoveCount = 0;
@@ -52,6 +54,7 @@ public class GameBoard {
         System.out.println("castling " + Integer.toBinaryString(castling));
         System.out.println("en passant " + enPs);
         System.out.println("turn " + side);
+        System.out.println("hash key: " + Long.toUnsignedString(MoveGen.generateHashKey(), 16));
 
     }
 
@@ -65,7 +68,7 @@ public class GameBoard {
             occupancies[i] = 0L;
         }
         castling = 0b0;
-        enPs = noSq;
+        enPs = NO_SQ;
         halfMoveClock = 0;
         fullMoveCount = 0;
 
@@ -248,6 +251,9 @@ public class GameBoard {
 
         }
         fullMoveCount = Integer.parseInt(halfMove.toString());
+
+        Game.hashKey = MoveGen.generateHashKey();
+
         return charPos;
 
 

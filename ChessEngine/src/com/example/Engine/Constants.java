@@ -41,20 +41,28 @@ public abstract class Constants {
     public static final int ENDGAME = 0;
     public static final int INFINITY = 50000;
     public static final String startFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    public static final int checkMate = 1;
-    public static final int staleMate = 2;
-    public static final int noMate = 0;
-    public static final String empty_board = "8/8/8/8/8/8/8/8 w - - 0 0 ";
-    public static final String start_position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ";
-    public static final String tricky_position = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ";
-    public static final String killer_position = "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P1P3/RNBQKBNR w KQkq e6 0 1";
-    public static final String very_hard_position = "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9 ";
+    public static final int CHECK_MATE = 1;
+    public static final int STALE_MATE = 2;
+    public static final int NO_MATE = 0;
+    public static final String emptyBoard = "8/8/8/8/8/8/8/8 w - - 0 0 ";
+    public static final String startPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ";
+    public static final String trickyPosition = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ";
+    public static final String killerHeuristicPosition = "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P1P3/RNBQKBNR w KQkq e6 0 1";
+    public static final String anotherPosition = "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9 ";
     public static final int BLACK = 0;
     public static final int WHITE = 1;
     public static final boolean BISHOP = true;
     public static final boolean ROOK = false;
     public static final int MAX_PLY = 64;
     public static final int ENDGAME_MATERIAL = 2800;
+    public static final int ALL_MOVES = 0;
+    public static final int CAP_MOVES = 1;
+    public static final int NULL_MOVE_REDUCTION_AMOUNT = 2;
+    public static final int ALPHA_HASH_FLAG = 1;
+    public static final int EXACT_HASH_FLAG = 0;
+    public static final int BETA_HASH_FLAG = 2;
+    public static final int NO_HASH_TABLE_ENTRY = INFINITY*2;
+    public static final int HASH_TABLE_SIZE = 0x800000;//8 MB
     //tables
     public static long[] kingAttacks = new long[64];
     public static long[][] pawnAttacks = new long[2][64];
@@ -127,7 +135,7 @@ public abstract class Constants {
     public static final int f8=61;
     public static final int g8=62;
     public static final int h8=63;
-    public static final int noSq=64;
+    public static final int NO_SQ =64;
 
     public static final int[] pieceScoreEvalTable = new int[] {
         100,
@@ -153,7 +161,7 @@ public abstract class Constants {
     public static final int occWIdx = 1;
     public static final int occBothIdx = 2;
 
-    public static final int noPc = 12;
+    public static final int NO_PC = 12;
     public static final int P = 0;
     public static final int N = 1;
     public static final int B = 2;
@@ -289,8 +297,8 @@ public abstract class Constants {
             -70, -70, -70, -70, -70, -70, -70, -70,
             -70, -70, -70, -70, -70, -70, -70, -70,
 
-    };
 
+    };
     public static final int[] blackKingScoreE = new int[] {
             -50, -20,0,0,0,0,-20,-50,
             -20,0,20,20,20,20,0,-20,
