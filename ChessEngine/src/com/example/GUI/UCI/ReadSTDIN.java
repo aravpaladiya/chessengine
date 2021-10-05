@@ -1,5 +1,7 @@
 package com.example.GUI.UCI;
 
+import com.example.Game;
+
 import java.util.Scanner;
 
 import static com.example.Engine.GameBoard.printState;
@@ -41,6 +43,7 @@ public class ReadSTDIN extends Thread{
                 } else if(command.equals("ucinewgame")) {
                     UCI.previousPosCommandLen = 0;
                     UCI.previousPosCommand = "";
+                    Game.hashTable.clearTable();
                 }else if(command.equals("printstate()")) {
                     printState();
                 }

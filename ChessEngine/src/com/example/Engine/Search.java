@@ -21,6 +21,9 @@ public class Search {
     public static int[][] historyMoves = new int[12][64];
     public static long timeAtMoveOver = 0;
     public static Boolean stopSearch = true;
+    public static int TTMove = 0;
+    public static Move tableMove = new Move(0, 0);
+
 
     private static boolean checkForStop() {
         if(timeAtMoveOver - System.nanoTime() < 0 || stopSearch) {
@@ -147,6 +150,10 @@ public class Search {
                 return 0;
             }
         }
+        if(ply >= MAX_PLY) {
+            //too deep
+            return evaluate();
+        }
         int evaluate = evaluate();
         if(evaluate >= beta) {
             return beta;
@@ -172,11 +179,13 @@ public class Search {
                     return 0;
                 }
 
-                if (score >= beta) {
-                    return beta;
-                }
+
                 if (score > alpha) {
                     alpha = score;
+                    if (score >= beta) {
+                        return beta;
+                    }
+
                 }
             }
         }
@@ -186,39 +195,37 @@ public class Search {
 
     public static int negamax(int depth, int alpha, int beta) {
         int score;
+        int hashFlag = ALPHA_HASH_FLAG;
         PVLength[ply] = ply;
-        if(depth == 0) {
-            return quiescence(alpha, beta);
-        }
+
 
         if(ply >= MAX_PLY) {
             //too deep
             return evaluate();
         }
+
+        if(depth <= 0) {
+            return quiescence(alpha, beta);
+        }
         searchNodes++;
         boolean inCheck = isSquareAttacked(BitBoard.getLs1bIndex(bitboards[side==WHITE?K:k]), side^1);
-        boolean foundPV = false;
         int legalMoveCount = 0;
-
+        tableMove = new Move(0, 0);
         if (inCheck) {
             depth++;
         }
-        /*
-        info score cp 40  depth 1 nodes 25 time 2 pv
-info score cp 10  depth 2 nodes 102 time 30 pv d2d4 d7d5
-info score cp 40  depth 3 nodes 305 time 49 pv d2d4 d7d5 b1c3
-info score cp 10  depth 4 nodes 2080 time 72 pv d2d4 d7d5 b1c3 b8c6
-info score cp 40  depth 5 nodes 4543 time 87 pv d2d4 d7d5 b1c3 b8c6 g1f3
-info score cp 20  depth 6 nodes 29992 time 184 pv b1c3 d7d5 e2e4 d5e4 c3e4 g8f6
-info score cp 30  depth 7 nodes 82324 time 347 pv d2d4 b8c6 g1f3 d7d5 b1c3 g8f6 c1f4
-info score cp 25  depth 8 nodes 265672 time 931 pv g1f3 b8c6 d2d4 d7d5 b1c3 e7e6 e2e4 g8f6
-info score cp 25  depth 9 nodes 462287 time 1349 pv g1f3 d7d5 d2d4 b8c6 c1f4 g8f6 b1c3 c8f5 e2e3
-info score cp 30  depth 10 nodes 1855703 time 2477 pv e2e4 b8c6 g1f3 e7e6 b1c3 d7d5 e4d5 e6d5 d1e2 g8e7
-info score cp 30  depth 11 nodes 3611703 time 3323 pv e2e4 b8c6 g1f3 e7e6 b1c3 d7d5 d2d4 g8f6 e4d5 e6d5 c1f4
+//        boolean isPVNode = (beta-alpha) > 1;
+        if(/*!isPVNode && */ply != 0) {
+            HashTable.HashReturn tableScore = hashTable.read(hashKey, depth, alpha, beta);
+            if (!tableScore.exact) {
+                tableMove = new Move(tableScore.move, 25000);
+            } else {
+                if(tableScore != NO_HASH_TABLE_ENTRY) {
+                    return tableScore.score;
+                }
+            }
+        }
 
-
-         */
-        //info score cp 35  depth 11 nodes 10555139 time 5516 pv e2e4 b8c6 d2d4 e7e6 g1f3 d7d5 e4e5 f7f6 b1c3 f6e5 d4e5
         //null move pruning
         if(isOkToNullMove(inCheck, depth, ply)) {
             ply++;
@@ -229,7 +236,7 @@ info score cp 30  depth 11 nodes 3611703 time 3323 pv e2e4 b8c6 g1f3 e7e6 b1c3 d
                 hashKey ^= zobristEnPsKeys[enPs];
             }
             enPs = NO_SQ;
-            score = -negamax(depth-3, -beta, -beta+1);
+            score = -negamax(depth-1-NULL_MOVE_REDUCTION_AMOUNT, -beta, -beta+1);
 
             side ^= 1;
             hashKey ^= zobristSideKey;
@@ -254,11 +261,14 @@ info score cp 30  depth 11 nodes 3611703 time 3323 pv e2e4 b8c6 g1f3 e7e6 b1c3 d
                 ply++;
                 legalMoveCount++;
                 if(movesSearched == 0) {
+                    //p
                     //closed window
 //                    score = -negamax(depth-1, -alpha-1, -alpha);
 //                    if(score > alpha && score < beta) {
                     //open window
-                    score = -negamax(depth-1, -beta, -alpha);
+
+                    score = -negamax(depth - 1, -beta, -alpha);
+
 //                    }
                 } else {
                     //lmr
@@ -289,45 +299,55 @@ info score cp 30  depth 11 nodes 3611703 time 3323 pv e2e4 b8c6 g1f3 e7e6 b1c3 d
                     }
                 }
                 movesSearched++;
-                if(score >= beta) {
-                    //update killer
-                    if(decodeCap(searchList.moves[i].move)==0) {
-                        killerMoves[1][ply] = killerMoves[0][ply];
-                        killerMoves[0][ply] = searchList.moves[i].move;
-                    }
 
-                    return beta;
-                }
+
 
                 if(score > alpha) {
                     alpha = score;
-                    //update history
-                    if(decodeCap(searchList.moves[i].move)==0) {
-                        historyMoves[decodePiece(searchList.moves[i].move)][decodeTo(searchList.moves[i].move)] = 1 << depth;
-                    }
                     principalVariation[ply][ply] = searchList.moves[i].move;
                     for(int nextPly = ply+1; nextPly < PVLength[ply+1]; nextPly++) {
                         //update pv
                         principalVariation[ply][nextPly] = principalVariation[ply+1][nextPly];
                     }
                     PVLength[ply] = PVLength[ply+1];
+                    hashFlag = EXACT_HASH_FLAG;
+
+                    if(score >= beta) {
+                        //update killer
+                        if(decodeCap(searchList.moves[i].move)==0) {
+                            killerMoves[1][ply] = killerMoves[0][ply];
+                            killerMoves[0][ply] = searchList.moves[i].move;
+                        }
+                        //update hashtable
+                        hashTable.write(hashKey, depth-1, BETA_HASH_FLAG, beta, searchList.moves[i]);
+                        return beta;
+                    }
+
                 }
-
-
 
             }
         }
         if(legalMoveCount == 0) {
             //if no legal moves ie checkmate or stalemate return mating score
             if(isSquareAttacked(BitBoard.getLs1bIndex(bitboards[side==WHITE?K:k]), side^1)) {
-                return -49000+ply;
+                alpha =  -49000+ply;
             } else {
-                return 0;
+                alpha = 0;
+
             }
+            hashFlag = EXACT_HASH_FLAG;
         }
+        hashTable.write(hashKey, depth, hashFlag, alpha, new Move(0, 0));
 
         return alpha;
     }
+
+
+
+
+
+
+
 
     private static boolean isOkToNullMove(boolean inCheck, int depth, int ply) {
         int pawnForSide;

@@ -130,7 +130,8 @@ public class Game {
         loadFEN(startFEN);
         timeAssigned = Long.MAX_VALUE;
         stopSearch = false;
-        searchPosition(11);
+        searchPosition(12);
+
 
     }
 
@@ -140,7 +141,7 @@ public class Game {
         //loadFEN(startFEN);//not needed for UCI, done in position command
 
         initAll();
-        boolean isDebugging = false;
+        boolean isDebugging = true;
 
         if(isDebugging) {
             debug();

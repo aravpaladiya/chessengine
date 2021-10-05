@@ -93,6 +93,9 @@ public class Evaluate {
 
 
     public static int scoreMove(int move) {
+        if(tableMove.move == move) {
+            return tableMove.score;
+        }
         if(followingPVLine) {
             if (principalVariation[0][ply] == move) {
                 scoringPV = true;

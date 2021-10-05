@@ -15,12 +15,4 @@ public class HashTableElement {
         this.move = move;
     }
 
-
-    public void clear() {
-        this.hashKey = 0;
-        this.depth = 0;
-        this.flag = 0;
-        this.score = 0;
-        this.move = new Move(0, 0);
-    }
 }

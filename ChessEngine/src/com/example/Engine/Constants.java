@@ -54,15 +54,16 @@ public abstract class Constants {
     public static final boolean BISHOP = true;
     public static final boolean ROOK = false;
     public static final int MAX_PLY = 64;
-    public static final int ENDGAME_MATERIAL = 2800;
     public static final int ALL_MOVES = 0;
     public static final int CAP_MOVES = 1;
     public static final int NULL_MOVE_REDUCTION_AMOUNT = 2;
     public static final int ALPHA_HASH_FLAG = 1;
     public static final int EXACT_HASH_FLAG = 0;
     public static final int BETA_HASH_FLAG = 2;
-    public static final int NO_HASH_TABLE_ENTRY = INFINITY*2;
-    public static final int HASH_TABLE_SIZE = 0x800000;//8 MB
+//    public static final HashTable.HashReturn ONLY_MOVE_ENTRY = new HashTable.HashReturn(INFINITY * 3);
+    public static final HashTable.HashReturn NO_HASH_TABLE_ENTRY = new HashTable.HashReturn(INFINITY*2);
+    public static final int HASH_TABLE_SIZE = 0x8000000;//256 MB
+    public static final Move NO_MOVE = new Move(0, 0);
     //tables
     public static long[] kingAttacks = new long[64];
     public static long[][] pawnAttacks = new long[2][64];

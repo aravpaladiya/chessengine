@@ -633,6 +633,7 @@ public abstract class MoveGen {
 
     public static void addMove(int move, MoveList list) {
         list.moves[list.count] = new Move(move, scoreMove(move));
+        System.out.println("!");
         list.count++;
 
     }
@@ -960,7 +961,9 @@ public abstract class MoveGen {
                 }
             }
         }
-
+        if(tableMove.move != 0) {
+            addMove(tableMove.move, moveList1);
+        }
         if(!scoringPV) {
             followingPVLine = false;
         }
