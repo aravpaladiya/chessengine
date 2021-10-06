@@ -34,18 +34,15 @@ public class Search {
     }
 
     public static int searchPosition(int depth) {
-        int score = 0;
         killerMoves = new int[2][MAX_PLY];
         principalVariation = new int[64][64];
         PVLength = new int[MAX_PLY];
-        historyMoves = new int[12][64];
         long searchStartNs = System.nanoTime();
         if(timeAssigned == Long.MAX_VALUE) {
             timeAtMoveOver = timeAssigned;
         }
 
         timeAtMoveOver = searchStartNs + timeAssigned;
-
         int bestMove = 0;
         int[] prevPV = new int[MAX_PLY];
         searchNodes = 0;
@@ -214,17 +211,17 @@ public class Search {
         if (inCheck) {
             depth++;
         }
-//        boolean isPVNode = (beta-alpha) > 1;
-        if(/*!isPVNode && */ply != 0) {
-            HashTable.HashReturn tableScore = hashTable.read(hashKey, depth, alpha, beta);
-            if (!tableScore.exact) {
-                tableMove = new Move(tableScore.move, 25000);
-            } else {
-                if(tableScore != NO_HASH_TABLE_ENTRY) {
-                    return tableScore.score;
-                }
+        boolean isPVNode = (beta-alpha) > 1;
+        HashTable.HashReturn tableScore = hashTable.read(hashKey, depth, alpha, beta);
+
+        if (!tableScore.exact) {
+            tableMove = new Move(tableScore.move, 0);
+        } else {
+            if(tableScore != NO_HASH_TABLE_ENTRY && !isPVNode && ply!=0) {
+                return tableScore.score;
             }
         }
+
 
         //null move pruning
         if(isOkToNullMove(inCheck, depth, ply)) {
@@ -330,12 +327,11 @@ public class Search {
         if(legalMoveCount == 0) {
             //if no legal moves ie checkmate or stalemate return mating score
             if(isSquareAttacked(BitBoard.getLs1bIndex(bitboards[side==WHITE?K:k]), side^1)) {
-                alpha =  -49000+ply;
+                return -49000+ply;
             } else {
-                alpha = 0;
+                return 0;
 
             }
-            hashFlag = EXACT_HASH_FLAG;
         }
         hashTable.write(hashKey, depth, hashFlag, alpha, new Move(0, 0));
 

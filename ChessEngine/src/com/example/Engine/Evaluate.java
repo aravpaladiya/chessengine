@@ -93,16 +93,16 @@ public class Evaluate {
 
 
     public static int scoreMove(int move) {
-        if(tableMove.move == move) {
-            return tableMove.score;
-        }
+
         if(followingPVLine) {
             if (principalVariation[0][ply] == move) {
                 scoringPV = true;
                 return 20000;
             }
         }
-
+        if(tableMove.move == move) {
+            return 15000;
+        }
         if(decodeCap(move) == 1) {
             if(decodeEnPs(move)==1) {
                 return MVVLVA[P][P] + 10000;
@@ -132,6 +132,7 @@ public class Evaluate {
                 return historyMoves[decodePiece(move)][decodeTo(move)];
             }
         }
+
         return 0;
     }
 }

@@ -3,6 +3,7 @@ package com.example.Engine;
 import java.util.Arrays;
 
 import static com.example.Engine.Constants.*;
+import static com.example.Engine.Search.ply;
 
 public class HashTable {
     public HashTableElement[] table;
@@ -17,29 +18,31 @@ public class HashTable {
         if(element == null) {
             return NO_HASH_TABLE_ENTRY;
         }
+        int score = element.score;
+
+
         if(element.hashKey == hashKey) {//check for collision,
             // if the stored hash key is not the inputted hash key, this element was overwritten somewhere
+            if(score < -48000) {
+                score += ply;
+            } else if(score > 48000) {
+                score -= ply;
+            }
             if(element.depth >= depth) {
-                if(element.flag == ALPHA_HASH_FLAG && element.score <= alpha) {
+                if(element.flag == ALPHA_HASH_FLAG && score <= alpha) {
                     //return lower bound
                     return new HashReturn(alpha);
-                } else if(element.flag == BETA_HASH_FLAG && element.score >= beta) {
+                } else if(element.flag == BETA_HASH_FLAG && score >= beta) {
                     //return upper bound
                     return new HashReturn(beta);
                 } else if(element.flag == EXACT_HASH_FLAG){
                     //return exact score
-                    return new HashReturn(element.score);
+                    return new HashReturn(score);
                 }
             } else {
-                if(element.flag == ALPHA_HASH_FLAG && element.score <= alpha) {
-                    //return lower bound
-                    return new HashReturn(alpha, element.move.move);
-                } else if(element.flag == BETA_HASH_FLAG && element.score >= beta) {
-                    //return upper bound
-                    return new HashReturn(beta, element.move.move);
-                } else if(element.flag == EXACT_HASH_FLAG){
-                    //return exact score
-                    return new HashReturn(element.score, element.move.move);
+                if(element.move.move != 0) {
+////                    MoveGen.printShortMove(element.move.move);
+                    return new HashReturn(0, element.move.move);
                 }
             }
         }
@@ -47,7 +50,13 @@ public class HashTable {
     }
 
     public void write(long hashKey, int depth, int flag, int score, Move move) {
-        table[(int) (hashKey & HASH_TABLE_SIZE-1)] = new HashTableElement(hashKey, depth, flag, score, move);
+        if(score < -48000) {
+            score -= ply;
+        } else if(score > 48000) {
+            score += ply;
+        }
+        HashTableElement element = new HashTableElement(hashKey, depth, flag, score, move);
+        table[(int) (hashKey & HASH_TABLE_SIZE-1)] = element;
     }
 
     public void clearTable() {
@@ -64,7 +73,7 @@ public class HashTable {
             this.score = score;
             this.exact = true;
         }
-        public HashReturn(int move, int score) {
+        public HashReturn(int score, int move) {
             this.move = move;
             this.score = score;
             this.exact = false;
