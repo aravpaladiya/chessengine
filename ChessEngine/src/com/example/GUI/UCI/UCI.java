@@ -203,19 +203,21 @@ public class UCI {
     public static String previousPosCommand = "";
     static void parsePos(String command) {
         positionSetUp = false;
-        int i = 0;
+        int i;
         char[] commandArr = command.toCharArray();
         int moveStartIndex = 0;
         if(previousPosCommandLen != 0 && command.regionMatches(0, previousPosCommand, 0, previousPosCommandLen-1)) {
             moveStartIndex = previousPosCommandLen-6;
         } else {
             if (command.regionMatches(9, "startpos", 0, 8)) {
-                GameBoard.loadFEN(Constants.startFEN);
+
+                loadFEN(startFEN);
                 moveStartIndex = 18;
             } else if (command.regionMatches(9, "fen", 0, 3)) {
                 String FEN;
                 FEN = command.substring(13);
                 moveStartIndex = loadFEN(FEN)+14;
+
             }
         }
         moveStartIndex+=6;
@@ -228,14 +230,16 @@ public class UCI {
                     break;
                 }
             }
+
             moveStartIndex++;
             String moveStr = command.substring(i, moveStartIndex-1);
             makeMoveFromString(moveStr);
+            historyPly++;
+            repetitionTable[historyPly] = hashKey;
         }
         previousPosCommandLen = moveStartIndex;
         previousPosCommand = command;
         positionSetUp = true;
-
     }
 
     static void makeMoveFromString(String move) {

@@ -23,7 +23,8 @@ public class Search {
     public static Boolean stopSearch = true;
     public static int TTMove = 0;
     public static Move tableMove = new Move(0, 0);
-
+    public static int historyPly = 0;
+    public static long[] repetitionTable = new long[600];
 
     private static boolean checkForStop() {
         if(timeAtMoveOver - System.nanoTime() < 0 || stopSearch) {
@@ -48,15 +49,20 @@ public class Search {
         searchNodes = 0;
         for(int i = 1; i <= depth; i++) {
             followingPVLine = true;
+
+
             score = negamax(i, -INFINITY, INFINITY);
 
+
+
             long finish = System.nanoTime();
+
             if(stopSearch) {
                 stopSearch = false;
                 break;
             } else {
                 //uci print
-                System.out.print("info score cp " + score + "  depth " + i + " nodes " + searchNodes + " time " + (finish-searchStartNs)/1000000 + " pv ");
+                System.out.print("info score cp " + score + "  depth " + i + " nodes " + searchNodes + " time " + (finish - searchStartNs) / 1000000 + " pv ");
                 for (int j = 0; j < i; j++) {
                     if (prevPV[j] == 0 || ((score < 0) ? 49000 + score == j : 49000 - score == j)) {
                         break;
@@ -171,6 +177,7 @@ public class Search {
                 int score = -quiescence(-beta, -alpha);
 
                 ply--;
+
                 unmakeMove(searchList.moves[i].move, ALL_MOVES);
                 if(stopSearch) {
                     return 0;
@@ -194,7 +201,9 @@ public class Search {
         int score;
         int hashFlag = ALPHA_HASH_FLAG;
         PVLength[ply] = ply;
-
+        if(isRepetition() && ply!=0) {
+            return 0;
+        }
 
         if(ply >= MAX_PLY) {
             //too deep
@@ -226,6 +235,7 @@ public class Search {
         //null move pruning
         if(isOkToNullMove(inCheck, depth, ply)) {
             ply++;
+            historyPly++;
             side ^= 1;
             hashKey ^= zobristSideKey;
             int prevEnPs = enPs;
@@ -242,6 +252,7 @@ public class Search {
                 hashKey ^= zobristEnPsKeys[enPs];
             }
             ply--;
+            historyPly--;
             if(score >= beta) {
                 return beta;
             }
@@ -256,6 +267,9 @@ public class Search {
             if(makeMove(searchList.getNextMove(i).move, ALL_MOVES)) {
 
                 ply++;
+                historyPly++;
+                repetitionTable[historyPly] = hashKey;
+
                 legalMoveCount++;
                 if(movesSearched == 0) {
                     //p
@@ -288,6 +302,7 @@ public class Search {
                 }
 
                 ply--;
+                historyPly--;
 
                 unmakeMove(searchList.moves[i].move, ALL_MOVES);
                 if((searchNodes & 2047) == 0) {
@@ -366,6 +381,15 @@ public class Search {
             return false;
         }
         return true;
+    }
+
+    private static boolean isRepetition() {
+        for(int i = 0; i < historyPly; i++) {
+            if(repetitionTable[i]==hashKey) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

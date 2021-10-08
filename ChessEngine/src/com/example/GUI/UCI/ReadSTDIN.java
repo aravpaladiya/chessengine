@@ -1,10 +1,12 @@
 package com.example.GUI.UCI;
 
+import com.example.Engine.Search;
 import com.example.Game;
 
 import java.util.Scanner;
 
 import static com.example.Engine.GameBoard.printState;
+import static com.example.Engine.Search.repetitionTable;
 import static com.example.Engine.Search.stopSearch;
 
 public class ReadSTDIN extends Thread{
@@ -43,6 +45,8 @@ public class ReadSTDIN extends Thread{
                 } else if(command.equals("ucinewgame")) {
                     UCI.previousPosCommandLen = 0;
                     UCI.previousPosCommand = "";
+                    Search.historyPly = 0;
+                    repetitionTable = new long[600];
                     Game.hashTable.clearTable();
                 }else if(command.equals("printstate()")) {
                     printState();

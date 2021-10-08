@@ -4,6 +4,8 @@ package com.example.Engine;
 import com.example.Game;
 
 import static com.example.Engine.Constants.*;
+import static com.example.Engine.Search.repetitionTable;
+import static com.example.Game.hashKey;
 
 public class GameBoard {
     public static long[] bitboards = new long[13];
@@ -253,7 +255,8 @@ public class GameBoard {
         fullMoveCount = Integer.parseInt(halfMove.toString());
 
         Game.hashKey = MoveGen.generateHashKey();
-
+        repetitionTable = new long[600];
+        repetitionTable[0] = hashKey;
         return charPos;
 
 
