@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="chessengine:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/chessengine_jar</output-path>
-    <root id="archive" name="chessengine.jar">
-      <element id="module-output" name="chessengine" />
-    </root>
-  </artifact>
-</component>
